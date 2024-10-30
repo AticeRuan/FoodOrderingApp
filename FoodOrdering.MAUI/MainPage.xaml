@@ -1,0 +1,77 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:components="clr-namespace:FoodOrdering.MAUI.Views.Components"
+             x:Class="FoodOrdering.MAUI.MainPage"
+             xmlns:vm="clr-namespace:FoodOrdering.MAUI.ViewModels"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             Title="Double Happy"
+             BackgroundColor="{StaticResource BackgroundBrown}">
+    <Shell.TitleView>
+        <HorizontalStackLayout VerticalOptions="Center" Spacing="18" Padding="2" >
+            <Image Source="logo.png" HeightRequest="35" WidthRequest="35" Aspect="AspectFill"/>
+            <Label Text="Double Happy" FontSize="30" FontFamily="PBold" TextColor="{StaticResource LogoRed}"/>
+        </HorizontalStackLayout>
+    </Shell.TitleView>
+
+    <ContentPage.Behaviors>
+        <toolkit:StatusBarBehavior StatusBarColor="{StaticResource BackgroundBrown}" StatusBarStyle="LightContent" />
+    </ContentPage.Behaviors>
+
+    <ContentPage.BindingContext>
+        <vm:MainPageViewModel />
+    </ContentPage.BindingContext>
+
+    <ScrollView>   
+            
+            <VerticalStackLayout
+           Spacing="25"           
+             >
+         
+
+            <Image
+                Source="header.jpeg"
+                HeightRequest="{Binding HeaderHeight}"          
+                Aspect="AspectFill"
+                x:Name="HeaderImage"
+                SemanticProperties.Description="Header" />
+                
+            <Grid RowDefinitions="*,*,*,*" RowSpacing="0" Margin="0,-100,0,0" HeightRequest="430">
+             <Image
+                 Source="circle.png"                          
+                 Aspect="AspectFill"
+                 x:Name="ButtonBg"
+              HeightRequest="{Binding CircleWidth}"
+                 WidthRequest="{Binding CircleWidth}"
+                 Grid.Row="0" Grid.RowSpan="4" HorizontalOptions="Center" />
+
+                <Label Text="Start Your Order" FontFamily="PRegular" FontSize="20" Grid.Row="1" Margin="0,0,0,0"
+                       HorizontalOptions="Center"/>
+                <components:CustomButton Text="Delivery"
+                         BackgroundColor="{StaticResource LogoGold}"
+                         Icon="delivery.png"  
+                         CornerRadius="10,10,10,10"
+                         Width="200"
+                         TextColor="{StaticResource BackgroundBrown}"
+                         x:Name="DeliveryButton"                                         
+                         Command="{Binding NavigateToDeliveryCommand}"
+                                         CommandParameter="DeliveryParameter"
+                         Grid.Row="1"
+                                         />
+                <components:CustomButton Text="Pick Up"
+                      BackgroundColor="{StaticResource LogoRed}"
+                      Icon="shop.png"  
+                      CornerRadius="10,10,10,10"
+                      Width="200"
+                      x:Name="PickUpButton"
+                      TextColor="{StaticResource TextPrimary}"
+                      Command="{Binding NavigateToPickUpCommand}" 
+                     CommandParameter="PickUpParameter"
+                     Grid.Row="2"
+                     /> 
+                </Grid>       
+       
+              </VerticalStackLayout>
+   
+    </ScrollView>
+</ContentPage>

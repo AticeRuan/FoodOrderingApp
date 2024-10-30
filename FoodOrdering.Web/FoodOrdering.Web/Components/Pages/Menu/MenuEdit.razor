@@ -1,0 +1,119 @@
+﻿@page "/menu/edit/{Id:int}"
+@page "/menu/new"
+@using FoodOrdering.Shared.Models
+@using FoodOrdering.Web.Services
+@inject IFoodOrderingService Service
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+
+<div class="p-8 max-w-2xl mx-auto">
+    <h1 class="text-3xl font-bold tracking-tight mb-6">
+        @(Id == null ? "Create Menu Item" : "Edit Menu Item")
+    </h1>
+
+    <EditForm Model="@_foodMenuItem" OnValidSubmit="HandleValidSubmit" class="space-y-6">
+        <DataAnnotationsValidator />
+
+        <div class="space-y-2">
+            <label for="name" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                Name
+            </label>
+            <InputText id="name" @bind-Value="_foodMenuItem.Name"
+                       class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" />
+            <ValidationMessage For="@(() => _foodMenuItem.Name)" class="text-sm font-medium text-destructive" />
+        </div>
+
+        <div class="space-y-2">
+            <label for="description" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                Description
+            </label>
+            <InputTextArea id="description" @bind-Value="_foodMenuItem.Description"
+                           class="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" />
+            <ValidationMessage For="@(() => _foodMenuItem.Description)" class="text-sm font-medium text-destructive" />
+        </div>
+
+        <div class="space-y-2">
+            <label for="price" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                Price
+            </label>
+            <InputNumber id="price" @bind-Value="_foodMenuItem.Price"
+                         class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" />
+            <ValidationMessage For="@(() => _foodMenuItem.Price)" class="text-sm font-medium text-destructive" />
+        </div>
+
+        <div class="space-y-2">
+            <label for="category" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                Category
+            </label>
+            <InputText id="category" @bind-Value="_foodMenuItem.Category"
+                       class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" />
+            <ValidationMessage For="@(() => _foodMenuItem.Category)" class="text-sm font-medium text-destructive" />
+        </div>
+
+        <div class="flex items-center space-x-2">
+            <InputCheckbox id="isAvailable" @bind-Value="_foodMenuItem.IsAvailable"
+                           class="h-4 w-4 rounded border border-primary text-primary ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" />
+            <label for="isAvailable" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                Available
+            </label>
+        </div>
+
+        <div class="flex gap-4">
+            <button type="submit" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
+                Save Changes
+            </button>
+            <button type="button" @onclick="NavigateBack" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
+                Cancel
+            </button>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    [Parameter]
+    public int? Id { get; set; }
+
+    private FoodMenuItem _foodMenuItem = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id.HasValue)
+        {
+            var item = await Service.GetMenuItemAsync(Id.Value);
+            if (item != null)
+            {
+                _foodMenuItem = item;
+            }
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            if (Id.HasValue)
+            {
+                await Service.UpdateMenuItemAsync(Id.Value, _foodMenuItem);
+                NavigateBack();
+            }
+            else
+            {
+                var createdItem = await Service.CreateMenuItemAsync(_foodMenuItem);
+                if (createdItem != null)
+                {
+                    NavigateBack();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            // You might want to add error handling here
+            Console.WriteLine($"Error saving menu item: {ex.Message}");
+        }
+    }
+
+    private void NavigateBack()
+    {
+        NavigationManager.NavigateTo("/menu");
+    }
+}

@@ -1,0 +1,178 @@
+﻿@page "/orders/active"
+@using FoodOrdering.Shared.Models
+@using FoodOrdering.Shared.Enums
+@using FoodOrdering.Web.Services
+@inject IFoodOrderingService Service
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+
+<div class="p-8">
+    <div class="max-w-7xl mx-auto">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold tracking-tight">Active Orders</h1>
+            <div class="flex gap-2">
+                <button @onclick="RefreshOrders" class="btn-secondary">
+                    Refresh
+                </button>
+                <a href="/orders" class="btn-primary">
+                    All Orders
+                </a>
+            </div>
+        </div>
+
+        @if (orders == null)
+        {
+            <div class="flex justify-center items-center min-h-[200px]">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            </div>
+        }
+        else if (!orders.Any())
+        {
+            <div class="rounded-lg border border-muted bg-card p-8 text-center">
+                <h3 class="text-lg font-semibold mb-2">No active orders</h3>
+                <p class="text-sm text-muted-foreground">All orders have been completed or cancelled.</p>
+            </div>
+        }
+        else
+        {
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                @foreach (var order in orders)
+                {
+                    <div class="rounded-lg border p-6 @GetOrderCardClass(order.Status)">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="text-lg font-semibold">Order #@order.Id</h3>
+                                <p class="text-sm text-muted-foreground">
+                                    @order.OrderDate.ToLocalTime().ToString("g")
+                                </p>
+                            </div>
+                            <span class="@GetStatusBadgeClass(order.Status)">
+                                @order.Status.ToString()
+                            </span>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div>
+                                <p class="font-medium">@order.CustomerName</p>
+                                <p class="text-sm text-muted-foreground">@order.CustomerPhone</p>
+                            </div>
+
+                            <div class="border-t pt-4">
+                                <p class="text-sm font-medium mb-2">Order Items:</p>
+                                <ul class="space-y-2">
+                                    @foreach (var item in order.Items)
+                                    {
+                                        <li class="text-sm">
+                                            @item.Quantity x @item.MenuItem?.Name
+                                           
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+
+                            <div class="border-t pt-4">
+                                <div class="flex justify-between items-center">
+                                    <span class="font-medium">Total:</span>
+                                    <span class="font-bold">@order.TotalAmount.ToString("C")</span>
+                                </div>
+                            </div>
+
+                            <div class="flex gap-2 pt-4">
+                                <button @onclick="() => ViewOrder(order.Id)"
+                                        class="flex-1 btn-secondary">
+                                    View Details
+                                </button>
+                                <button @onclick="() => UpdateStatus(order)"
+                                        class="flex-1 @GetActionButtonClass(order.Status)">
+                                    @GetActionButtonText(order.Status)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private List<Order>? orders;
+    private static readonly OrderStatus[] ActiveStatuses = { OrderStatus.Pending, OrderStatus.Confirmed, OrderStatus.Ready };
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadOrders();
+    }
+
+    private async Task LoadOrders()
+    {
+        var allOrders = await Service.GetOrdersAsync();
+        orders = allOrders.Where(o => ActiveStatuses.Contains(o.Status))
+                         .OrderBy(o => o.Status)
+                         .ThenByDescending(o => o.OrderDate)
+                         .ToList();
+    }
+
+    private async Task RefreshOrders()
+    {
+        await LoadOrders();
+    }
+
+    private string GetOrderCardClass(OrderStatus status) => status switch
+    {
+        OrderStatus.Pending => "border-yellow-200 bg-yellow-50",
+        OrderStatus.Confirmed => "border-blue-200 bg-blue-50",
+        OrderStatus.Ready => "border-green-200 bg-green-50",
+        _ => "border-gray-200"
+    };
+
+    private string GetStatusBadgeClass(OrderStatus status) => status switch
+    {
+        OrderStatus.Pending => "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-yellow-100 text-yellow-800",
+        OrderStatus.Confirmed => "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-blue-100 text-blue-800",
+        OrderStatus.Ready => "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-green-100 text-green-800",
+        _ => "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-gray-100 text-gray-800"
+    };
+
+    private string GetActionButtonClass(OrderStatus status) => status switch
+    {
+        OrderStatus.Pending => "btn-primary bg-yellow-500 hover:bg-yellow-600 text-white",
+        OrderStatus.Confirmed => "btn-primary bg-blue-500 hover:bg-blue-600 text-white",
+        OrderStatus.Ready => "btn-primary bg-green-500 hover:bg-green-600 text-white",
+        _ => "btn-secondary"
+    };
+
+    private string GetActionButtonText(OrderStatus status) => status switch
+    {
+        OrderStatus.Pending => "Confirm Order",
+        OrderStatus.Confirmed => "Mark Ready",
+        OrderStatus.Ready => "Complete Order",
+        _ => "View Status"
+    };
+
+    private void ViewOrder(int id)
+    {
+        NavigationManager.NavigateTo($"/orders/{id}");
+    }
+
+    private async Task UpdateStatus(Order order)
+    {
+        var nextStatus = GetNextStatus(order.Status);
+        if (nextStatus.HasValue)
+        {
+            var success = await Service.UpdateOrderStatusAsync(order.Id, nextStatus.Value);
+            if (success)
+            {
+                await LoadOrders();
+            }
+        }
+    }
+
+    private OrderStatus? GetNextStatus(OrderStatus currentStatus) => currentStatus switch
+    {
+        OrderStatus.Pending => OrderStatus.Confirmed,
+        OrderStatus.Confirmed => OrderStatus.Ready,
+        OrderStatus.Ready => OrderStatus.Completed,
+        _ => null
+    };
+}

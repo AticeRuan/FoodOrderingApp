@@ -1,0 +1,55 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:components="clr-namespace:FoodOrdering.MAUI.Views.Components"
+             xmlns:vm="clr-namespace:FoodOrdering.MAUI.ViewModels"
+             x:Class="FoodOrdering.MAUI.Pages.DeliveryPage"
+             Title="Delivery - Taupo"
+             BackgroundColor="{StaticResource BackgroundBrown}">
+
+    <ContentPage.BindingContext>
+        <vm:DeliveryPageViewModel />
+    </ContentPage.BindingContext>
+
+    <Shell.TitleView>
+        <FlexLayout AlignItems="Center" JustifyContent="SpaceEvenly">
+            <Label Text="Delivery" FontSize="30" FontFamily="PBold" TextColor="{StaticResource TextPrimary}"/>
+            <Button Text="Change to Pick Up" FontSize="15" FontFamily="PRegular" 
+                    TextColor="{StaticResource LogoGold}" BackgroundColor="Transparent" 
+                    Command="{Binding SwitchToPickupCommand}" />
+        </FlexLayout>
+    </Shell.TitleView>
+
+    <VerticalStackLayout HorizontalOptions="Center" Padding="30,30,30,0" Spacing="20">
+        <!-- User Input Fields -->
+        <Border StrokeThickness="1" Stroke="{StaticResource BackgroundGrey}">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="12" />
+            </Border.StrokeShape>
+            <Grid RowDefinitions="*,*,*,*,*" Margin="15" ColumnDefinitions="*,*" RowSpacing="10" ColumnSpacing="10">
+                <components:CustomTextInput Placeholder="First Name" Text="{Binding FirstName, Mode=TwoWay}" />
+                <components:CustomTextInput Placeholder="Last Name" Text="{Binding LastName, Mode=TwoWay}" Grid.Column="1" />
+                <components:CustomTextInput Placeholder="Contact Number" Text="{Binding PhoneNumber, Mode=TwoWay}" Grid.Row="1" Grid.ColumnSpan="2" Width="250" />
+                <components:CustomTextInput Placeholder="Unit Number" Text="{Binding UnitNumber, Mode=TwoWay}" Grid.Row="2" />
+                <components:CustomTextInput Placeholder="Street Number" Text="{Binding StreetNumber, Mode=TwoWay}" Grid.Row="2" Grid.Column="1" />
+                <components:CustomTextInput Placeholder="Street" Text="{Binding StreetName, Mode=TwoWay}" Grid.Row="3" Grid.ColumnSpan="2" Width="250" />
+                <components:CustomTextInput Placeholder="Suburb" Text="{Binding Suburb, Mode=TwoWay}" Grid.Row="4" Grid.ColumnSpan="2" Width="250" />
+            </Grid>
+        </Border>
+
+        <!-- Date and Time Pickers -->
+        <Label Text="Delivery Time" TextColor="White" FontSize="25" HorizontalTextAlignment="Center" FontFamily="PMedium"/>
+        <components:CustomPicker Placeholder="Choose Date" Width="300" 
+                                 ItemsSource="{Binding DateViewModel.DateSlots, Mode=TwoWay}" 
+                                 SelectedItem="{Binding DateViewModel.SelectedDateSlot, Mode=TwoWay}" 
+                                 IsForDate="True" />
+
+        <components:CustomPicker Placeholder="Choose Time" Width="300" 
+                                 ItemsSource="{Binding TimeViewModel.TimeSlots, Mode=TwoWay}" 
+                                 SelectedItem="{Binding TimeViewModel.SelectedTimeSlot, Mode=TwoWay}" 
+                                 IsForDate="False" />
+
+        <!-- Start Order Button -->
+        <components:CustomButton Text="Start Order" Width="200" BackgroundColor="{StaticResource LogoRed}"
+                                 CornerRadius="10" TextColor="White" Command="{Binding StartOrderCommand}" />
+    </VerticalStackLayout>
+</ContentPage>

@@ -1,0 +1,322 @@
+﻿@page "/reports/sales"
+@using FoodOrdering.Shared.Enums
+@using FoodOrdering.Shared.Models
+@using FoodOrdering.Web.Services
+@inject IFoodOrderingService Service
+@rendermode InteractiveServer
+
+<div class="p-8">
+    <div class="max-w-7xl mx-auto">
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold tracking-tight">Sales Report</h1>
+            <div class="flex gap-4">
+                <select @bind="selectedPeriod" class="rounded-md border px-3 py-2">
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly">Monthly</option>
+                </select>
+                <button @onclick="RefreshData" class="btn-secondary">
+                    Refresh
+                </button>
+            </div>
+        </div>
+
+        @if (isLoading)
+        {
+            <div class="flex justify-center items-center min-h-[200px]">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            </div>
+        }
+        else
+        {
+            <!-- Summary Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="rounded-lg border p-6 bg-white">
+                    <span class="text-sm font-medium text-muted-foreground">Total Sales</span>
+                    <div class="mt-2 flex items-baseline">
+                        <span class="text-3xl font-bold">@salesMetrics.TotalSales.ToString("C")</span>
+                        <span class="ml-2 text-sm text-@(salesMetrics.SalesGrowth >= 0 ? "green" : "red")-600">
+                            @(salesMetrics.SalesGrowth >= 0 ? "↑" : "↓") @Math.Abs(salesMetrics.SalesGrowth).ToString("F1")%
+                        </span>
+                    </div>
+                    <span class="text-sm text-muted-foreground">vs previous period</span>
+                </div>
+
+                <div class="rounded-lg border p-6 bg-white">
+                    <span class="text-sm font-medium text-muted-foreground">Average Order Value</span>
+                    <div class="mt-2">
+                        <span class="text-3xl font-bold">@salesMetrics.AverageOrderValue.ToString("C")</span>
+                    </div>
+                    <span class="text-sm text-muted-foreground">@salesMetrics.TotalOrders orders</span>
+                </div>
+
+                <div class="rounded-lg border p-6 bg-white">
+                    <span class="text-sm font-medium text-muted-foreground">Completed Orders</span>
+                    <div class="mt-2">
+                        <span class="text-3xl font-bold">@salesMetrics.CompletedOrders</span>
+                    </div>
+                    <span class="text-sm text-muted-foreground">
+                        @salesMetrics.CompletionRate.ToString("P1") completion rate
+                    </span>
+                </div>
+            </div>
+
+            <!-- Sales by Category -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <div class="rounded-lg border bg-white">
+                    <div class="p-6 border-b">
+                        <h2 class="text-lg font-semibold">Sales by Category</h2>
+                    </div>
+                    <div class="p-6">
+                        <div class="space-y-4">
+                            @foreach (var category in salesByCategory)
+                            {
+                                var percentage = category.Sales / salesMetrics.TotalSales * 100;
+                                <div>
+                                    <div class="flex justify-between text-sm mb-1">
+                                        <span>@category.Category</span>
+                                        <span>@category.Sales.ToString("C")</span>
+                                    </div>
+                                    <div class="w-full bg-gray-100 rounded-full h-2">
+                                        <div class="bg-primary rounded-full h-2"
+                                             style="width: @percentage%">
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rounded-lg border bg-white">
+                    <div class="p-6 border-b">
+                        <h2 class="text-lg font-semibold">Sales Trends</h2>
+                    </div>
+                    <div class="p-6">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="border-b">
+                                    <th class="text-left pb-4">Period</th>
+                                    <th class="text-right pb-4">Orders</th>
+                                    <th class="text-right pb-4">Sales</th>
+                                    <th class="text-right pb-4">Avg. Order</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var trend in salesTrends)
+                                {
+                                    <tr class="border-b last:border-0">
+                                        <td class="py-4">@trend.Period</td>
+                                        <td class="py-4 text-right">@trend.Orders</td>
+                                        <td class="py-4 text-right">@trend.Sales.ToString("C")</td>
+                                        <td class="py-4 text-right">@trend.AverageOrder.ToString("C")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Orders -->
+            <div class="rounded-lg border bg-white">
+                <div class="p-6 border-b">
+                    <h2 class="text-lg font-semibold">Recent Orders</h2>
+                </div>
+                <div class="p-6">
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="border-b">
+                                    <th class="text-left pb-4">Order ID</th>
+                                    <th class="text-left pb-4">Date</th>
+                                    <th class="text-left pb-4">Customer</th>
+                                    <th class="text-right pb-4">Items</th>
+                                    <th class="text-right pb-4">Total</th>
+                                    <th class="text-right pb-4">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var order in recentOrders)
+                                {
+                                    <tr class="border-b last:border-0">
+                                        <td class="py-4">#@order.Id</td>
+                                        <td class="py-4">@order.OrderDate.ToLocalTime().ToString("g")</td>
+                                        <td class="py-4">@order.CustomerName</td>
+                                        <td class="py-4 text-right">@order.Items.Count</td>
+                                        <td class="py-4 text-right">@order.TotalAmount.ToString("C")</td>
+                                        <td class="py-4 text-right">
+                                            <span class="@GetStatusBadgeClass(order.Status)">
+                                                @order.Status
+                                            </span>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private bool isLoading = true;
+    private string selectedPeriod = "daily";
+    private SalesMetrics salesMetrics = new();
+    private List<CategorySales> salesByCategory = new();
+    private List<SalesTrend> salesTrends = new();
+    private List<Order> recentOrders = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        isLoading = true;
+        try
+        {
+            var orders = await Service.GetOrdersAsync();
+            CalculateMetrics(orders);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task RefreshData()
+    {
+        await LoadData();
+    }
+
+    private void CalculateMetrics(List<Order> orders)
+    {
+        var today = DateTime.UtcNow.Date;
+        var periodStart = selectedPeriod switch
+        {
+            "weekly" => today.AddDays(-7),
+            "monthly" => today.AddMonths(-1),
+            _ => today // daily
+        };
+
+        var periodOrders = orders.Where(o => o.OrderDate >= periodStart).ToList();
+        var previousPeriodOrders = orders.Where(o =>
+            o.OrderDate >= periodStart.AddDays(periodStart.Subtract(today).TotalDays) &&
+            o.OrderDate < periodStart).ToList();
+
+        // Calculate main metrics
+        salesMetrics = new SalesMetrics
+            {
+                TotalSales = periodOrders.Sum(o => o.TotalAmount),
+                TotalOrders = periodOrders.Count,
+                AverageOrderValue = periodOrders.Any() ? periodOrders.Average(o => o.TotalAmount) : 0,
+                CompletedOrders = periodOrders.Count(o => o.Status == OrderStatus.Completed),
+                CompletionRate = periodOrders.Any() ?
+                    (double)periodOrders.Count(o => o.Status == OrderStatus.Completed) / periodOrders.Count : 0,
+                SalesGrowth = CalculateGrowth(
+                    periodOrders.Sum(o => o.TotalAmount),
+                    previousPeriodOrders.Sum(o => o.TotalAmount)
+                )
+            };
+
+        // Calculate sales by category
+        salesByCategory = periodOrders
+            .SelectMany(o => o.Items)
+            .GroupBy(i => i.MenuItem?.Category ?? "Uncategorized")
+            .Select(g => new CategorySales
+                {
+                    Category = g.Key,
+                    Sales = g.Sum(i => i.Quantity * i.UnitPrice)
+                })
+            .OrderByDescending(c => c.Sales)
+            .ToList();
+
+        // Calculate sales trends
+        salesTrends = GetSalesTrends(orders);
+
+        // Get recent orders
+        recentOrders = orders
+            .OrderByDescending(o => o.OrderDate)
+            .Take(10)
+            .ToList();
+    }
+
+    private List<SalesTrend> GetSalesTrends(List<Order> orders)
+    {
+        var trends = new List<SalesTrend>();
+        var today = DateTime.UtcNow.Date;
+
+        for (int i = 6; i >= 0; i--)
+        {
+            var start = selectedPeriod switch
+            {
+                "weekly" => today.AddDays(-i * 7),
+                "monthly" => today.AddMonths(-i),
+                _ => today.AddDays(-i)
+            };
+
+            var end = selectedPeriod switch
+            {
+                "weekly" => start.AddDays(7),
+                "monthly" => start.AddMonths(1),
+                _ => start.AddDays(1)
+            };
+
+            var periodOrders = orders.Where(o => o.OrderDate >= start && o.OrderDate < end).ToList();
+
+            trends.Add(new SalesTrend
+                {
+                    Period = start.ToString(selectedPeriod == "monthly" ? "MMM yyyy" : "MMM dd"),
+                    Orders = periodOrders.Count,
+                    Sales = periodOrders.Sum(o => o.TotalAmount),
+                    AverageOrder = periodOrders.Any() ? periodOrders.Average(o => o.TotalAmount) : 0
+                });
+        }
+
+        return trends;
+    }
+
+    private double CalculateGrowth(decimal current, decimal previous)
+    {
+        if (previous == 0) return 100;
+        return (double)((current - previous) / previous * 100);
+    }
+
+    private string GetStatusBadgeClass(OrderStatus status) => status switch
+    {
+        OrderStatus.Pending => "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-yellow-100 text-yellow-800",
+        OrderStatus.Confirmed => "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-blue-100 text-blue-800",
+        OrderStatus.Ready => "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-green-100 text-green-800",
+        OrderStatus.Completed => "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-gray-100 text-gray-800",
+        OrderStatus.Cancelled => "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-red-100 text-red-800",
+        _ => "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-gray-100 text-gray-800"
+    };
+
+    private class SalesMetrics
+    {
+        public decimal TotalSales { get; set; }
+        public int TotalOrders { get; set; }
+        public decimal AverageOrderValue { get; set; }
+        public int CompletedOrders { get; set; }
+        public double CompletionRate { get; set; }
+        public double SalesGrowth { get; set; }
+    }
+
+    private class CategorySales
+    {
+        public string Category { get; set; } = string.Empty;
+        public decimal Sales { get; set; }
+    }
+
+    private class SalesTrend
+    {
+        public string Period { get; set; } = string.Empty;
+        public int Orders { get; set; }
+        public decimal Sales { get; set; }
+        public decimal AverageOrder { get; set; }
+    }
+}

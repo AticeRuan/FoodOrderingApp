@@ -1,0 +1,150 @@
+﻿@page "/orders/{Id:int}"
+@using FoodOrdering.Shared.Models
+@using FoodOrdering.Shared.Enums
+@using FoodOrdering.Web.Services
+@inject IFoodOrderingService Service
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JS
+@rendermode InteractiveServer
+
+<div class="p-8">
+    <div class="max-w-3xl mx-auto">
+        @if (order == null)
+        {
+            <div class="flex justify-center items-center min-h-[200px]">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            </div>
+        }
+        else
+        {
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h1 class="text-3xl font-bold tracking-tight">Order #@order.Id</h1>
+                    <p class="text-muted-foreground">Placed on @order.OrderDate.ToLocalTime().ToString("f")</p>
+                </div>
+                <button @onclick="NavigateBack" class="btn-secondary">
+                    Back to Orders
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <!-- Status -->
+                <div class="rounded-lg border p-4">
+                    <h3 class="text-sm font-medium text-muted-foreground mb-1">Status</h3>
+                    <div class="@GetStatusBadgeClass(order.Status)">
+                        @order.Status.ToString()
+                    </div>
+                    <select @bind="newStatus" class="mt-2 w-full rounded-md border p-2">
+                        @foreach (var status in Enum.GetValues<OrderStatus>())
+                        {
+                            <option value="@status">@status</option>
+                        }
+                    </select>
+                    <button @onclick="UpdateOrderStatus" class="btn-primary w-full mt-2">
+                        Update Status
+                    </button>
+                </div>
+
+                <!-- Customer Info -->
+                <div class="rounded-lg border p-4">
+                    <h3 class="text-sm font-medium text-muted-foreground mb-1">Customer</h3>
+                    <p class="font-medium">@order.CustomerName</p>
+                    <p class="text-muted-foreground">@order.CustomerPhone</p>
+                </div>
+
+                <!-- Order Summary -->
+                <div class="rounded-lg border p-4">
+                    <h3 class="text-sm font-medium text-muted-foreground mb-1">Summary</h3>
+                    <p class="font-medium">@order.Items.Count items</p>
+                    <p class="text-xl font-bold">@order.TotalAmount.ToString("C")</p>
+                </div>
+            </div>
+
+            <!-- Order Items -->
+            <div class="rounded-lg border">
+                <table class="w-full">
+                    <thead>
+                        <tr class="border-b bg-muted/50">
+                            <th class="h-12 px-4 text-left align-middle font-medium">Item</th>
+                            <th class="h-12 px-4 text-left align-middle font-medium">Quantity</th>
+                            <th class="h-12 px-4 text-left align-middle font-medium">Price</th>
+                            <th class="h-12 px-4 text-left align-middle font-medium">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in order.Items)
+                        {
+                            <tr class="border-b">
+                                <td class="p-4">
+                                    <div class="font-medium">@item.MenuItem?.Name</div>
+                                  
+                                </td>
+                                <td class="p-4">@item.Quantity</td>
+                                <td class="p-4">@item.UnitPrice.ToString("C")</td>
+                                <td class="p-4">@((item.Quantity * item.UnitPrice).ToString("C"))</td>
+                            </tr>
+                        }
+                        <tr class="bg-muted/50">
+                            <td colspan="3" class="p-4 text-right font-medium">Total</td>
+                            <td class="p-4 font-bold">@order.TotalAmount.ToString("C")</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private Order? order;
+    private OrderStatus newStatus;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadOrder();
+    }
+
+    private async Task LoadOrder()
+    {
+        order = await Service.GetOrderAsync(Id);
+        if (order != null)
+        {
+            newStatus = order.Status;
+        }
+    }
+
+    private async Task UpdateOrderStatus()
+    {
+        if (order != null && newStatus != order.Status)
+        {
+            var success = await Service.UpdateOrderStatusAsync(Id, newStatus);
+            if (success)
+            {
+                await LoadOrder();
+                await JS.InvokeVoidAsync("alert", "Order status updated successfully!");
+            }
+            else
+            {
+                await JS.InvokeVoidAsync("alert", "Failed to update order status.");
+            }
+        }
+    }
+
+    private string GetStatusBadgeClass(OrderStatus status) => status switch
+    {
+        OrderStatus.Pending => "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-yellow-100 text-yellow-800",
+        OrderStatus.Confirmed => "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-blue-100 text-blue-800",
+        OrderStatus.Ready => "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-green-100 text-green-800",
+        OrderStatus.Completed => "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-gray-100 text-gray-800",
+        OrderStatus.Cancelled => "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-red-100 text-red-800",
+        _ => "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-gray-100 text-gray-800"
+    };
+
+    private void NavigateBack()
+    {
+        NavigationManager.NavigateTo("/orders");
+    }
+}

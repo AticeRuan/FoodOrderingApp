@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="FoodOrdering.MAUI.Views.Components.CustomButton"
+             x:Name="Self">
+
+    <ContentView.GestureRecognizers>
+        <TapGestureRecognizer Tapped="OnButtonTapped" />
+    </ContentView.GestureRecognizers>
+
+    <Border BackgroundColor="{Binding Source={x:Reference Self}, Path=BackgroundColor}"
+            StrokeThickness="0"
+            Padding="10" 
+            Margin="0,30,0,0"
+            WidthRequest="{Binding Source={x:Reference Self}, Path=Width}"
+            HeightRequest="53">
+
+        <Border.StrokeShape>
+            <RoundRectangle CornerRadius="{Binding Source={x:Reference Self}, Path=CornerRadius}" />
+        </Border.StrokeShape>
+
+        <Grid HorizontalOptions="Center" VerticalOptions="Center">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Image Source="{Binding Source={x:Reference Self}, Path=Icon}" Grid.Column="0"
+                   HeightRequest="15" 
+                   VerticalOptions="Center" Margin="0,0,10,0"
+                   Aspect="AspectFit"/>
+
+            <Label Text="{Binding Source={x:Reference Self}, Path=Text}"
+                   TextColor="{Binding Source={x:Reference Self}, Path=TextColor}"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"
+                   Grid.Column="1" FontFamily="PMedium"/>
+        </Grid>
+    </Border>
+</ContentView>

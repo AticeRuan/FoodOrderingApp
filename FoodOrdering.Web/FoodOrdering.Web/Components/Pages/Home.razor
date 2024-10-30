@@ -1,0 +1,116 @@
+﻿@page "/"
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+
+<div class="p-8">
+    <div class="max-w-7xl mx-auto">
+        <h1 class="text-4xl font-bold tracking-tight mb-2">Dashboard</h1>
+        <p class="text-muted-foreground mb-8">Welcome to your restaurant management system.</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Menu Management Card -->
+            <div class="group relative rounded-lg border p-6 hover:shadow-lg transition-all">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-2xl font-semibold">Menu</h2>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                         class="text-muted-foreground">
+                        <path d="M3 3h18v18H3z" />
+                        <path d="M3 9h18" />
+                        <path d="M9 21V9" />
+                    </svg>
+                </div>
+                <p class="text-muted-foreground mb-6">Manage your menu items, categories, and pricing.</p>
+                <div class="space-y-2">
+                    <button @onclick="@(() => NavigationManager.NavigateTo("/menu"))"
+                            class="w-full text-left px-4 py-2 rounded-md hover:bg-muted transition-colors">
+                        View Menu Items →
+                    </button>
+                    <button @onclick="@(() => NavigationManager.NavigateTo("/menu/new"))"
+                            class="w-full text-left px-4 py-2 rounded-md hover:bg-muted transition-colors">
+                        Add New Item →
+                    </button>
+                </div>
+            </div>
+
+            <!-- Orders Management Card -->
+            <div class="group relative rounded-lg border p-6 hover:shadow-lg transition-all">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-2xl font-semibold">Orders</h2>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                         class="text-muted-foreground">
+                        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+                        <line x1="3" y1="6" x2="21" y2="6" />
+                        <path d="M16 10a4 4 0 0 1-8 0" />
+                    </svg>
+                </div>
+                <p class="text-muted-foreground mb-6">View and manage customer orders.</p>
+                <div class="space-y-2">
+                    <button @onclick="@(() => NavigationManager.NavigateTo("/orders"))"
+                            class="w-full text-left px-4 py-2 rounded-md hover:bg-muted transition-colors">
+                        View All Orders →
+                    </button>
+                    <button @onclick="@(() => NavigationManager.NavigateTo("/orders/active"))"
+                            class="w-full text-left px-4 py-2 rounded-md hover:bg-muted transition-colors">
+                        Active Orders →
+                    </button>
+                </div>
+            </div>
+
+            <!-- Reports Card -->
+            <div class="group relative rounded-lg border p-6 hover:shadow-lg transition-all">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-2xl font-semibold">Reports</h2>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                         class="text-muted-foreground">
+                        <path d="M21.21 15.89A10 10 0 1 1 8 2.83" />
+                        <path d="M22 12A10 10 0 0 0 12 2v10z" />
+                    </svg>
+                </div>
+                <p class="text-muted-foreground mb-6">View sales reports and analytics.</p>
+                <div class="space-y-2">
+                    <button @onclick="@(() => NavigationManager.NavigateTo("/reports/sales"))"
+                            class="w-full text-left px-4 py-2 rounded-md hover:bg-muted transition-colors">
+                        Sales Report →
+                    </button>
+                    <button @onclick="@(() => NavigationManager.NavigateTo("/reports/popular"))"
+                            class="w-full text-left px-4 py-2 rounded-md hover:bg-muted transition-colors">
+                        Popular Items →
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="rounded-lg border p-6 flex flex-col">
+                <span class="text-sm font-medium text-muted-foreground">Total Orders Today</span>
+                <span class="text-2xl font-bold">12</span>
+                <span class="text-sm text-green-600 mt-2">↑ 12% from yesterday</span>
+            </div>
+
+            <div class="rounded-lg border p-6 flex flex-col">
+                <span class="text-sm font-medium text-muted-foreground">Active Menu Items</span>
+                <span class="text-2xl font-bold">24</span>
+                <span class="text-sm text-muted-foreground mt-2">Across 6 categories</span>
+            </div>
+
+            <div class="rounded-lg border p-6 flex flex-col">
+                <span class="text-sm font-medium text-muted-foreground">Today's Revenue</span>
+                <span class="text-2xl font-bold">$1,234</span>
+                <span class="text-sm text-green-600 mt-2">↑ 8% from yesterday</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    // You can add code to fetch real stats here
+    protected override async Task OnInitializedAsync()
+    {
+        // Fetch stats from your service
+        await base.OnInitializedAsync();
+    }
+}
