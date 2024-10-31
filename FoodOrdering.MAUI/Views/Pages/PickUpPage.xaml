@@ -47,8 +47,9 @@
 
         <!-- Date Picker -->
         <components:CustomPicker Width="300" Placeholder="Choose Date"
-                                 ItemsSource="{Binding DateViewModel.DateSlots,Mode=TwoWay}"                               
-                                  SelectedItem="{Binding DateViewModel.SelectedDateSlot, Mode=TwoWay}" 
+                                 ItemsSource="{Binding DateViewModel.DateSlots,Mode=TwoWay}"                             
+                                 SelectedItem="{Binding DateViewModel.SelectedDateSlot, Mode=TwoWay}" 
+                                 x:Name="DatePicker"
                                  IsForDate="True"
                                  />
 
@@ -56,6 +57,7 @@
         <components:CustomPicker Width="300" Placeholder="Choose Time"
                                  ItemsSource="{Binding TimeViewModel.TimeSlots,Mode=TwoWay}"  
                                  SelectedItem="{Binding TimeViewModel.SelectedTimeSlot, Mode=TwoWay}" 
+                                 x:Name="TimePicker"
                                  IsForDate="False" />
 
         <components:CustomButton Width="200" BackgroundColor="{StaticResource LogoRed}"

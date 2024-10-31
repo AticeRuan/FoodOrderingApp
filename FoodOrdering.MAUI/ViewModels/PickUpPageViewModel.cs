@@ -10,7 +10,8 @@ namespace FoodOrdering.MAUI.ViewModels
     public partial class PickupPageViewModel : ObservableObject
         {
         private readonly OrderService _orderService;
-
+        private DateSlot _selectedDateSlot;
+        private TimeSlot _selectedTimeSlot;
         public PickupPageViewModel() : this(new OrderService())
             {
             }
@@ -22,9 +23,25 @@ namespace FoodOrdering.MAUI.ViewModels
             TimeViewModel = new TimeSlotViewModel();
             firstName = string.Empty; 
             lastName = string.Empty;
-            selectedDateSlot = new DateSlot(); 
-            selectedTimeSlot = new TimeSlot { Id = 0, StartTime = DateTime.Now }; 
-            TimeViewModel.LoadTimeSlots(DateViewModel.SelectedDateSlot.Date);
+            _selectedDateSlot = new DateSlot { Id=0, Date =DateTime.Today};
+            TimeViewModel.LoadTimeSlots(SelectedDateSlot.Date);
+            DateViewModel.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(DateViewModel.SelectedDateSlot))
+                    {
+                    SelectedDateSlot = DateViewModel.SelectedDateSlot;
+                    }
+            };
+
+            TimeViewModel.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(TimeViewModel.SelectedTimeSlot))
+                    {
+                    SelectedTimeSlot = TimeViewModel.SelectedTimeSlot;
+                    }
+            };
+
+            _selectedTimeSlot = TimeViewModel?.SelectedTimeSlot ?? new TimeSlot();
             }
 
 
@@ -36,12 +53,33 @@ namespace FoodOrdering.MAUI.ViewModels
 
         [ObservableProperty]
         private string lastName;
-   
-        [ObservableProperty]
-        private DateSlot selectedDateSlot;
 
-        [ObservableProperty]
-        private TimeSlot selectedTimeSlot;
+        public DateSlot SelectedDateSlot
+            {
+            get => _selectedDateSlot;
+            set
+                {
+                if (_selectedDateSlot != value)
+                    {
+                    _selectedDateSlot = value;
+                    OnPropertyChanged(nameof(SelectedDateSlot));
+                    OnSelectedDateSlotChanged(value);
+                    }
+                }
+            }
+
+        public TimeSlot SelectedTimeSlot
+            {
+            get => _selectedTimeSlot;
+            set
+                {
+                if (_selectedTimeSlot != value)
+                    {
+                    _selectedTimeSlot = value;
+                    OnPropertyChanged(nameof(SelectedTimeSlot));
+                    }
+                }
+            }
 
         [RelayCommand]
         private async Task StartOrderAsync()
@@ -120,10 +158,12 @@ namespace FoodOrdering.MAUI.ViewModels
             await Shell.Current.GoToAsync(nameof(DeliveryPage));
             }
 
-        partial void OnSelectedDateSlotChanged(DateSlot value)
+        private void OnSelectedDateSlotChanged(DateSlot value)
             {
+          
             if (value != null)
                 {
+               
                 TimeViewModel.LoadTimeSlots(value.Date);
                 }
             }

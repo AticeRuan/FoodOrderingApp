@@ -33,6 +33,24 @@ namespace FoodOrdering.MAUI.ViewModels
             SelectedDateSlot = new DateSlot();
             SelectedTimeSlot = new TimeSlot();
             TimeViewModel.LoadTimeSlots(DateViewModel.SelectedDateSlot.Date);
+
+            // Subscribe to DateViewModel changes
+            DateViewModel.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(DateViewModel.SelectedDateSlot))
+                    {
+                    SelectedDateSlot = DateViewModel.SelectedDateSlot;
+                    }
+            };
+
+            // Subscribe to TimeViewModel changes
+            TimeViewModel.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(TimeViewModel.SelectedTimeSlot))
+                    {
+                    SelectedTimeSlot = TimeViewModel.SelectedTimeSlot;
+                    }
+            };
             }
 
         public DateSlotViewModel DateViewModel { get; }
