@@ -18,18 +18,20 @@ namespace FoodOrdering.MAUI.ViewModels
 
         public PickupPageViewModel(OrderService orderService)
             {
-            _orderService = orderService;
+            _orderService = Application.Current?.Handler?.MauiContext?.Services.GetService<OrderService>()
+                       ?? throw new InvalidOperationException("OrderService not found");
             DateViewModel = new DateSlotViewModel();
             TimeViewModel = new TimeSlotViewModel();
-            firstName = string.Empty; 
+            firstName = string.Empty;
             lastName = string.Empty;
-            _selectedDateSlot = new DateSlot { Id=0, Date =DateTime.Today};
+            _selectedDateSlot = new DateSlot { Id = 0, Date = DateTime.Today };
             TimeViewModel.LoadTimeSlots(SelectedDateSlot.Date);
             DateViewModel.PropertyChanged += (s, e) =>
             {
                 if (e.PropertyName == nameof(DateViewModel.SelectedDateSlot))
                     {
                     SelectedDateSlot = DateViewModel.SelectedDateSlot;
+                    TimeViewModel.LoadTimeSlots(SelectedDateSlot.Date);
                     }
             };
 
@@ -37,7 +39,7 @@ namespace FoodOrdering.MAUI.ViewModels
             {
                 if (e.PropertyName == nameof(TimeViewModel.SelectedTimeSlot))
                     {
-                    SelectedTimeSlot = TimeViewModel.SelectedTimeSlot;
+                    SelectedTimeSlot = TimeViewModel.SelectedTimeSlot ?? new TimeSlot();
                     }
             };
 
@@ -84,7 +86,7 @@ namespace FoodOrdering.MAUI.ViewModels
         [RelayCommand]
         private async Task StartOrderAsync()
             {
-            // Input validation
+     
             if (string.IsNullOrWhiteSpace(FirstName))
                 {
                 if (Application.Current?.MainPage != null)
@@ -121,12 +123,11 @@ namespace FoodOrdering.MAUI.ViewModels
                 return;
                 }
 
-            // Combine first name, last name, and pickup date and time for display in the alert
+          
             string message = $"First Name: {FirstName}\nLast Name: {LastName}\n" +
                              $"Pickup Date: {SelectedDateSlot.Date:dddd, MMMM d, yyyy}\n" +
                              $"Pickup Time: {SelectedTimeSlot.StartTime:hh:mm tt}";
 
-            // Display the alert with "Cancel" and "Continue" options
             if (Application.Current?.MainPage != null)
                 {
                 bool continueOrder = await Application.Current.MainPage.DisplayAlert(
@@ -136,20 +137,20 @@ namespace FoodOrdering.MAUI.ViewModels
                     "Cancel"
                 );
 
-                // If the user selected "Continue," proceed with the order
+              
                 if (continueOrder)
                     {
-                    // Update the global order with user inputs
+                  
                     _orderService.SetName(FirstName, LastName);
                     _orderService.SetPickupOrDelivery(
                         isDelivery: false,
                         scheduledDateTime: SelectedDateSlot.Date + SelectedTimeSlot.StartTime.TimeOfDay);
 
-                    // Navigate to the MenuPage
+                    
                     await Shell.Current.GoToAsync(nameof(MenuPage));
                     }
                 }
-            // If "Cancel" is selected, do nothing and stay on the current page
+            
             }
 
         [RelayCommand]

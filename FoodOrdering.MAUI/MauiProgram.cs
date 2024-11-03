@@ -31,16 +31,22 @@ namespace FoodOrdering.MAUI
             // Register services
             builder.Services.AddSingleton<IApiService, ApiService>();
             builder.Services.AddSingleton<OrderService>();
+            builder.Services.AddSingleton<MenuNavigationService>();
 
-            builder.Services.AddTransient<MainPage>();
+
 
             // Register pages 
+            builder.Services.AddTransient<MainPage>();
             builder.Services.AddTransient<MenuPage>();
             builder.Services.AddTransient<CartPage>();
             builder.Services.AddTransient<DeliveryPage>();
             builder.Services.AddTransient<PickUpPage>();
             // Register ViewModels
             builder.Services.AddTransient<MainPageViewModel>();
+            builder.Services.AddTransient<PickupPageViewModel>();
+            builder.Services.AddTransient<DeliveryPageViewModel>();
+            builder.Services.AddTransient<MenuPageViewModel>();
+
 
 #if DEBUG
             builder.Logging.AddDebug();

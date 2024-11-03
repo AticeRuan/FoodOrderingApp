@@ -10,6 +10,10 @@
         <vm:DeliveryPageViewModel />
     </ContentPage.BindingContext>
 
+    <Shell.BackButtonBehavior >
+        <BackButtonBehavior IconOverride="back.png" IsVisible="False"/>
+    </Shell.BackButtonBehavior>
+
     <Shell.TitleView>
         <FlexLayout AlignItems="Center" JustifyContent="SpaceEvenly">
             <Label Text="Delivery" FontSize="30" FontFamily="PBold" TextColor="{StaticResource TextPrimary}"/>

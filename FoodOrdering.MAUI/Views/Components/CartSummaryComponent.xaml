@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="FoodOrdering.MAUI.Views.Components.CartSummaryComponent">
+    <ContentView.Resources>
+        <Style x:Key="CartTextStyle" TargetType="Label">
+            <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
+            <Setter Property="FontFamily" Value="PMedium" />
+            <Setter Property="VerticalOptions" Value="Center" />
+        </Style>
+    </ContentView.Resources>
+
+    <Grid IsVisible="{Binding HasItems}"
+          BackgroundColor="{StaticResource BackgroundGrey}"
+          Padding="20"
+          VerticalOptions="End">
+
+        <Border StrokeThickness="0"
+                BackgroundColor="{StaticResource LogoRed}"
+                HeightRequest="60"
+                Margin="0">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="12"/>
+            </Border.StrokeShape>
+
+            <Grid ColumnDefinitions="Auto,*,Auto" 
+                  Padding="15,0" 
+                  ColumnSpacing="10">
+
+                <!-- Items Count -->
+                <HorizontalStackLayout Grid.Column="0" Spacing="5">
+                    <Label Text="{Binding TotalItems}" 
+                           Style="{StaticResource CartTextStyle}"
+                           FontSize="18"/>
+                    <Label Text="items" 
+                           Style="{StaticResource CartTextStyle}"
+                           FontSize="16"/>
+                </HorizontalStackLayout>
+
+                <!-- Checkout Text -->
+                <Label Grid.Column="1" 
+                       Text="Check Out" 
+                       Style="{StaticResource CartTextStyle}"
+                       FontSize="18"
+                       HorizontalOptions="Center"/>
+
+                <!-- Total Price -->
+                <Label Grid.Column="2" 
+                       Text="{Binding TotalPrice, StringFormat='${0:F2}'}"
+                       Style="{StaticResource CartTextStyle}"
+                       FontSize="18"/>
+            </Grid>
+        </Border>
+    </Grid>
+</ContentView>

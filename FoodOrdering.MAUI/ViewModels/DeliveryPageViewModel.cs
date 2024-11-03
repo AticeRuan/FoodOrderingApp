@@ -20,7 +20,8 @@ namespace FoodOrdering.MAUI.ViewModels
 
         public DeliveryPageViewModel(OrderService orderService)
             {
-            _orderService = orderService;
+            _orderService = Application.Current?.Handler?.MauiContext?.Services.GetService<OrderService>()
+                       ?? throw new InvalidOperationException("OrderService not found");
             DateViewModel = new DateSlotViewModel();
             TimeViewModel = new TimeSlotViewModel();
             FirstName = string.Empty;
@@ -40,6 +41,7 @@ namespace FoodOrdering.MAUI.ViewModels
                 if (e.PropertyName == nameof(DateViewModel.SelectedDateSlot))
                     {
                     SelectedDateSlot = DateViewModel.SelectedDateSlot;
+        
                     }
             };
 
@@ -113,6 +115,8 @@ namespace FoodOrdering.MAUI.ViewModels
                 _orderService.SetName(FirstName, LastName);
                 _orderService.SetAddress(address);
                 _orderService.SetPickupOrDelivery(isDelivery: true, scheduledDateTime: SelectedDateSlot.Date + SelectedTimeSlot.StartTime.TimeOfDay);
+                
+                
 
                 // Navigate to MenuPage
                 await Shell.Current.GoToAsync(nameof(MenuPage));

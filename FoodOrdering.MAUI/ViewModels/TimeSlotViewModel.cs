@@ -11,18 +11,17 @@ namespace FoodOrdering.MAUI.ViewModels
             {
             TimeSlots = new ObservableCollection<TimeSlot>();
             LoadTimeSlots(DateTime.Today);
-           
             }
 
         [ObservableProperty]
-        private ObservableCollection<TimeSlot> timeSlots;
+        private ObservableCollection<TimeSlot> timeSlots = new();
 
         [ObservableProperty]
         private TimeSlot? selectedTimeSlot;
 
         public void LoadTimeSlots(DateTime selectedDate)
             {
-            TimeSlots.Clear();
+    
             DateTime currentTime = DateTime.Now;
             DateTime startOfDay = selectedDate.Date.AddHours(11);
             DateTime endOfDay = selectedDate.Date.AddHours(21);

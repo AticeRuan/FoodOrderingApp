@@ -1,68 +1,30 @@
 using FoodOrdering.MAUI.Services;
-using FoodOrdering.Shared.Models;
-using Microsoft.Extensions.DependencyInjection;
+using FoodOrdering.MAUI.ViewModels;
 
-namespace FoodOrdering.MAUI.Pages
-{
-    public partial class MenuPage : ContentPage
+namespace FoodOrdering.MAUI.Pages;
+
+public partial class MenuPage : ContentPage
     {
-        private readonly IApiService _apiService;
-        private List<FoodMenuItem> _menuItems = [];
-        private bool _isBusy;
+    private readonly MenuPageViewModel _viewModel;
 
-        public new bool IsBusy
+    public MenuPage(MenuNavigationService navigationService)
         {
-            get => _isBusy;
-            set
-            {
-                _isBusy = value;
-                OnPropertyChanged(nameof(IsBusy));
-            }
+        InitializeComponent();
+        _viewModel = new MenuPageViewModel(navigationService);
+        BindingContext = _viewModel;
+
+        // Connect ScrollView to ViewModel
+        MenuScrollView.Scrolled += (s, e) => _viewModel.OnContentScrolled(MenuScrollView.ScrollY);
+
+        // Connect visual elements to ViewModel for position calculations
+        _viewModel.SetScrollView(MenuScrollView);
+        _viewModel.SetMenuItemsCollection(MenuItems);
+        _viewModel.SetMenuNav(MenuNav);
         }
 
-        // Parameterless constructor for Shell
-        public MenuPage()
+    protected override void OnAppearing()
         {
-            InitializeComponent();
-            _apiService = Application.Current?.Handler?.MauiContext?.Services.GetService<IApiService>()
-                          ?? throw new InvalidOperationException("IApiService not found");
-            BindingContext = this;
-        }
-
-        // Constructor with dependency injection
-        public MenuPage(IApiService apiService)
-        {
-            InitializeComponent();
-            _apiService = apiService;
-            BindingContext = this;
-        }
-
-        protected override async void OnAppearing()
-        {
-            base.OnAppearing();
-            await LoadMenuItems();
-        }
-
-        private async Task LoadMenuItems()
-        {
-            if (IsBusy)
-                return;
-
-            try
-            {
-                IsBusy = true;
-                _menuItems = await _apiService.GetMenuItemsAsync();
-                MenuItemsCollectionView.ItemsSource = _menuItems;
-            }
-            catch (Exception ex)
-            {
-                await DisplayAlert("Error", "Failed to load menu items.", "OK");
-                System.Diagnostics.Debug.WriteLine($"Error loading menu items: {ex}");
-            }
-            finally
-            {
-                IsBusy = false;
-            }
+        base.OnAppearing();
+        _viewModel.OnPageAppearing();
         }
     }
-}

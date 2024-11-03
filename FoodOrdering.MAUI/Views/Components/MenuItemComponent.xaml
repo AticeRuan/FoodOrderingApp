@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:FoodOrdering.Shared.Models;assembly=FoodOrdering.Shared"
+             x:Class="FoodOrdering.MAUI.Views.Components.MenuItemComponent">
+
+    <Frame Margin="0,5"
+           Padding="15"
+           BackgroundColor="{StaticResource BackgroundGrey}"
+           BorderColor="Transparent"
+           CornerRadius="10">
+        <Grid RowDefinitions="Auto,Auto" 
+              ColumnDefinitions="*,Auto">
+            <!-- Item Name and Description -->
+            <VerticalStackLayout Grid.Row="0" Grid.Column="0">
+                <Label Text="{Binding MenuItem.Name}" 
+                       TextColor="{StaticResource TextPrimary}"
+                       FontFamily="PBold"
+                       FontSize="16"/>
+                <Label Text="{Binding MenuItem.Description}" 
+                       TextColor="{StaticResource TextSecondary}"
+                       FontFamily="PRegular"
+                       FontSize="12"/>
+            </VerticalStackLayout>
+
+            <!-- Price -->
+            <Label Grid.Row="0" Grid.Column="1" 
+                   Text="{Binding MenuItem.Price, StringFormat='${0:F2}'}"
+                   TextColor="{StaticResource LogoGold}"
+                   FontFamily="PBold"
+                   FontSize="16"
+                   VerticalOptions="Start"/>
+
+            <!-- Add Button -->
+            <Button Grid.Row="1" Grid.Column="1"
+                    Text="Add"
+                    BackgroundColor="{StaticResource LogoRed}"
+                    TextColor="{StaticResource TextPrimary}"
+                    FontFamily="PBold"
+                    CornerRadius="8"
+                    Padding="15,5"
+                    Command="{Binding AddToOrderCommand}"/>
+        </Grid>
+    </Frame>
+</ContentView>
