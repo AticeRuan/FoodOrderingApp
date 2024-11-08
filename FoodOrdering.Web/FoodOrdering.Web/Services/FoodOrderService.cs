@@ -77,25 +77,54 @@ namespace FoodOrdering.Web.Services
                 .FirstOrDefaultAsync(o => o.Id == id);
         }
 
-        public async Task<Order> CreateOrderAsync(Order order)
-        {
-            // Set order date to current UTC time
-            order.OrderDate = DateTime.UtcNow;
+        public async Task<Order?> CreateOrderAsync(Order order)
+            {
+            try
+                {
+                // Set required fields
+                order.OrderDate = DateTime.UtcNow;
+                order.Status = OrderStatus.Pending;
 
+                // Ensure the customer details are properly set
+                order.SetCustomerDetails(order.CustomerName, order.CustomerAddress);
 
+                // Calculate total amount
+                order.UpdateTotalAmount();
 
-            order.SetCustomerDetails(order.CustomerName, order.CustomerAddress);
-            order.UpdateTotalAmount();
+                // Add the order to the context
+                context.Orders.Add(order);
 
-            // Set initial status
-            order.Status = OrderStatus.Pending;
+                // For each order item
+                foreach (var item in order.Items)
+                    {
+                    // Set the order relationship
+                    item.Order = order;
 
-            // Add order to context
-            context.Orders.Add(order);
-            await context.SaveChangesAsync();
+                    // If we have the menu item, verify and set the price
+                    if (item.MenuItem != null)
+                        {
+                        var menuItem = await context.MenuItems.FindAsync(item.MenuItemId);
+                        if (menuItem != null)
+                            {
+                            item.UnitPrice = menuItem.Price;
+                        
+                            }
+                        }
+                    }
 
-            return order;
-        }
+                await context.SaveChangesAsync();
+
+                // Log successful order creation
+                Console.WriteLine($"Order created successfully. Order ID: {order.Id}");
+                return order;
+                }
+            catch (Exception ex)
+                {
+                Console.WriteLine($"Error in CreateOrderAsync: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                throw; // Rethrow to let the endpoint handle it
+                }
+            }
 
         public async Task<bool> UpdateOrderStatusAsync(int id, OrderStatus newStatus)
         {

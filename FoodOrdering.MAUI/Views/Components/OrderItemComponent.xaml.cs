@@ -11,10 +11,9 @@ public partial class OrderItemComponent : ContentView, INotifyPropertyChanged
     public OrderItemComponent()
         {
         InitializeComponent();
-
         _orderService = Application.Current?.Handler?.MauiContext?.Services.GetService<OrderService>()
                        ?? throw new InvalidOperationException("OrderService not found");
-
+        BindingContext = this;
         }
 
     public static readonly BindableProperty OrderItemProperty = BindableProperty.Create(
@@ -27,22 +26,26 @@ public partial class OrderItemComponent : ContentView, INotifyPropertyChanged
     public OrderItem? OrderItem
         {
         get => (OrderItem?)GetValue(OrderItemProperty);
-        set
-            {
-            SetValue(OrderItemProperty, value);
-            BindingContext = value; 
-            }
+        set => SetValue(OrderItemProperty, value);
         }
 
-    public bool CanDecrement => OrderItem?.Quantity > 1;
+    // Properties for binding
+    public decimal TotalPrice => OrderItem?.TotalPrice ?? 0;
+    public int Quantity => OrderItem?.Quantity ?? 0;
 
     private static void OnOrderItemChanged(BindableObject bindable, object oldValue, object newValue)
         {
         if (bindable is OrderItemComponent component)
             {
-            component.OnPropertyChanged(nameof(OrderItem));
-            component.OnPropertyChanged(nameof(CanDecrement));
+            component.UpdateBindings();
             }
+        }
+
+    private void UpdateBindings()
+        {
+   
+        OnPropertyChanged(nameof(TotalPrice));
+        OnPropertyChanged(nameof(Quantity));
         }
 
     private void OnRemoveClicked(object sender, EventArgs e)
@@ -50,34 +53,37 @@ public partial class OrderItemComponent : ContentView, INotifyPropertyChanged
         if (OrderItem == null) return;
 
         var currentOrder = _orderService.CurrentOrder;
-        currentOrder.Items.Remove(OrderItem);
-        currentOrder.UpdateTotalAmount();
-
-        // Notify changes through the service
-        _orderService.UpdateOrder();
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            currentOrder.Items.Remove(OrderItem);
+            currentOrder.UpdateTotalAmount();
+            _orderService.NotifyPropertyChanged(nameof(OrderService.CurrentOrder));
+        });
         }
 
     private void OnIncrementClicked(object sender, EventArgs e)
         {
         if (OrderItem == null) return;
 
-        OrderItem.Quantity++;
-        _orderService.CurrentOrder.UpdateTotalAmount();
-        OnPropertyChanged(nameof(CanDecrement));
-
-        // Notify changes through the service
-        _orderService.UpdateOrder();
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            OrderItem.Quantity++;
+            _orderService.CurrentOrder.UpdateTotalAmount();
+            _orderService.NotifyPropertyChanged(nameof(OrderService.CurrentOrder));
+            UpdateBindings();
+        });
         }
 
     private void OnDecrementClicked(object sender, EventArgs e)
         {
-        if (OrderItem == null || OrderItem.Quantity==1) return;
+        if (OrderItem == null || OrderItem.Quantity <= 1) return;
 
-        OrderItem.Quantity--;
-        _orderService.CurrentOrder.UpdateTotalAmount();
-        OnPropertyChanged(nameof(CanDecrement));
-
-        // Notify changes through the service
-        _orderService.UpdateOrder();
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            OrderItem.Quantity--;
+            _orderService.CurrentOrder.UpdateTotalAmount();
+            _orderService.NotifyPropertyChanged(nameof(OrderService.CurrentOrder));
+            UpdateBindings();
+        });
         }
     }

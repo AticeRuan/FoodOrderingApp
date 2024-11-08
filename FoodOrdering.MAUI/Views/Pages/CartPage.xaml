@@ -13,14 +13,18 @@
         </ResourceDictionary>
     </ContentPage.Resources>
 
+    <Shell.BackButtonBehavior >
+        <BackButtonBehavior IconOverride="back.png" />
+    </Shell.BackButtonBehavior>
+
+    <Shell.TitleView>
+        <FlexLayout AlignItems="Center" JustifyContent="Start">
+            <Label Text="My Cart" FontSize="30" FontFamily="PBold" TextColor="{StaticResource TextPrimary}"/>         
+        </FlexLayout>
+    </Shell.TitleView>
+
     <Grid RowDefinitions="Auto,*,Auto" Padding="20">
-        <!-- Header -->
-        <Label Text="My Cart"
-               Grid.Row="0"
-               TextColor="{StaticResource TextPrimary}"
-               FontFamily="PBold"
-               FontSize="30"
-               Margin="0,0,0,20"/>
+
 
         <!-- Order Items List -->
         <ScrollView Grid.Row="1">
@@ -44,7 +48,7 @@
 
         <!-- Order Summary and Button -->
         <Border Grid.Row="2"
-                BackgroundColor="{StaticResource BackgroundGrey}"
+                BackgroundColor="Transparent"
                 Padding="20"
                 Margin="0,20,0,0"
                 StrokeThickness="0">
@@ -52,31 +56,35 @@
                 <RoundRectangle CornerRadius="12"/>
             </Border.StrokeShape>
 
-            <Grid RowDefinitions="Auto,Auto" RowSpacing="15">
+            <HorizontalStackLayout  HorizontalOptions="CenterAndExpand" Spacing="30">
                 <!-- Order Summary -->
-                <Grid ColumnDefinitions="*,Auto" Grid.Row="0">
+                <VerticalStackLayout  VerticalOptions="Center" HorizontalOptions="CenterAndExpand">
                     <VerticalStackLayout Spacing="5">
-                        <Label Text="{Binding TotalItems, StringFormat='{0} items'}"
-                               TextColor="{StaticResource TextPrimary}"
+                        <Label Text="{Binding TotalItems, StringFormat='{0} items selected'}"
+                               TextColor="{StaticResource TextSecondary}"
                                FontFamily="PRegular"
                                FontSize="16"/>
-                        <Label Text="{Binding TotalPrice, StringFormat='Total: ${0:F2}'}"
+                        <Label Text="{Binding TotalPrice, StringFormat='${0:F2}'}"
                                TextColor="{StaticResource LogoGold}"
                                FontFamily="PBold"
                                FontSize="20"/>
                     </VerticalStackLayout>
-                </Grid>
+                </VerticalStackLayout>
 
                 <!-- Order Button -->
                 <components:CustomButton Grid.Row="1"
                                        Text="Order Now"
-                                       Width="200"
+                                       Width="160"
                                        BackgroundColor="{StaticResource LogoRed}"
                                        TextColor="{StaticResource TextPrimary}"
-                                       CornerRadius="10"
+                                       CornerRadius="50,50,0,50"
+                                         Margin="0,-30,0,0"
                                        Command="{Binding PlaceOrderCommand}"
-                                       IsEnabled="{Binding IsOrdering, Converter={StaticResource InverseBoolConverter}}"/>
-            </Grid>
+                                       IsEnabled="{Binding IsOrdering, Converter={StaticResource InverseBoolConverter}}"
+                                         Icon="cart.png"
+                                         HorizontalOptions="Center"
+                                         VerticalOptions="Center"/>
+            </HorizontalStackLayout>
         </Border>
     </Grid>
 </ContentPage>

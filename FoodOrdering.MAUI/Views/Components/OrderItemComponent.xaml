@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="FoodOrdering.MAUI.Views.Components.OrderItemComponent">
+             x:Class="FoodOrdering.MAUI.Views.Components.OrderItemComponent"   x:Name="this">
 
     <Border BackgroundColor="{StaticResource BackgroundGrey}"
             Padding="15"
@@ -26,8 +26,9 @@
                 <Label Text="{Binding MenuItem.Name}"
                        TextColor="{StaticResource TextPrimary}"
                        FontFamily="PBold"
-                       FontSize="16"/>
-                <Label Text="{Binding TotalPrice, StringFormat='${0:F2}'}"
+                       FontSize="16"
+                       WidthRequest="100"/>
+                <Label Text="{Binding TotalPrice, StringFormat='${0:F2}', Mode=TwoWay,   Source={x:Reference this}}"
                        TextColor="{StaticResource LogoGold}"
                        FontFamily="PMedium"
                        FontSize="14"/>
@@ -53,7 +54,7 @@
                             Clicked="OnDecrementClicked"
                            />
 
-                    <Label Text="{Binding Quantity}"
+                    <Label Text="{Binding Quantity, Mode=TwoWay, Source={x:Reference this}}"
                            TextColor="{StaticResource TextPrimary}"
                            FontFamily="PMedium"
                            FontSize="16"

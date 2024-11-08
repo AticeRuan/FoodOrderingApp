@@ -35,9 +35,12 @@ namespace FoodOrdering.MAUI.Services
             Console.WriteLine($"OrderService property changed: {propertyName}");
             }
 
-        public void NotifyPropertyChanged(string propertyName)
+        public void NotifyPropertyChanged([CallerMemberName] string? propertyName = null)
             {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            });
             }
         public void ResetOrder()
             {
@@ -78,18 +81,19 @@ namespace FoodOrdering.MAUI.Services
             }
         public void RemoveItem(OrderItem item)
             {
-            if (CurrentOrder.Items.Remove(item))
+            if (CurrentOrder.Items.Contains(item))
                 {
+                CurrentOrder.Items.Remove(item);
                 CurrentOrder.UpdateTotalAmount();
                 NotifyPropertyChanged(nameof(CurrentOrder));
                 }
             }
 
-        public void UpdateItemQuantity(OrderItem item, int newQuantity)
+        public void UpdateItemQuantity(OrderItem item, int quantity)
             {
-            if (item != null && newQuantity > 0)
+            if (item != null && quantity > 0)
                 {
-                item.Quantity = newQuantity;
+                item.Quantity = quantity;
                 CurrentOrder.UpdateTotalAmount();
                 NotifyPropertyChanged(nameof(CurrentOrder));
                 }

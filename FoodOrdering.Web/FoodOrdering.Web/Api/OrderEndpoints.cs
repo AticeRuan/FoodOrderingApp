@@ -1,35 +1,25 @@
 ﻿using FoodOrdering.Shared.Enums;
 using FoodOrdering.Shared.Models;
-using FoodOrdering.Web.Api.Data;
 using FoodOrdering.Web.Services;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc;
 
 namespace FoodOrdering.Web.Api
-{
-    public static class OrderEndpoints
     {
-        public static RouteGroupBuilder MapOrderApi(this RouteGroupBuilder group)
+    public static class OrderEndpoints
         {
-            // Get all orders
-            group.MapGet("/orders", async (ApplicationDbContext db) =>
+        public static RouteGroupBuilder MapOrderApi(this RouteGroupBuilder group)
             {
-                var orders = await db.Orders
-                    .Include(o => o.Items)
-                        .ThenInclude(i => i.MenuItem)
-                    .OrderByDescending(o => o.OrderDate)
-                    .ToListAsync();
-
+            // Get all orders
+            group.MapGet("/orders", async ([FromServices] IFoodOrderingService service) =>
+            {
+                var orders = await service.GetOrdersAsync();
                 return Results.Ok(orders);
             });
 
             // Get order by id
-            group.MapGet("/orders/{id}", async (int id, ApplicationDbContext db) =>
+            group.MapGet("/orders/{id}", async (int id, [FromServices] IFoodOrderingService service) =>
             {
-                var order = await db.Orders
-                    .Include(o => o.Items)
-                        .ThenInclude(i => i.MenuItem)
-                    .FirstOrDefaultAsync(o => o.Id == id);
-
+                var order = await service.GetOrderAsync(id);
                 if (order == null)
                     return Results.NotFound();
 
@@ -37,50 +27,36 @@ namespace FoodOrdering.Web.Api
             });
 
             // Create new order
-            group.MapPost("/orders", async (Order order, ApplicationDbContext db) =>
+            group.MapPost("/orders", async ([FromBody] Order order, [FromServices] IFoodOrderingService service) =>
             {
-                // Set order date
-                order.OrderDate = DateTime.UtcNow;
+                try
+                    {
+                    // Use the service to create the order
+                    var newOrder = await service.CreateOrderAsync(order);
+                    if (newOrder == null)
+                        return Results.BadRequest("Failed to create order");
 
-                // Calculate total amount
-             
-
-                // Set initial status
-                order.Status = OrderStatus.Pending;
-
-                db.Orders.Add(order);
-                await db.SaveChangesAsync();
-
-                return Results.Created($"/api/orders/{order.Id}", order);
+                    return Results.Created($"/api/orders/{newOrder.Id}", newOrder);
+                    }
+                catch (Exception ex)
+                    {
+                    Console.WriteLine($"Error creating order: {ex.Message}");
+                    Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                    return Results.BadRequest(ex.Message);
+                    }
             });
 
             // Update order status
-            group.MapPut("/orders/{id}/status", async (int id, OrderStatus newStatus, ApplicationDbContext db) =>
+            group.MapPut("/orders/{id}/status", async (int id, [FromBody] OrderStatus newStatus, [FromServices] IFoodOrderingService service) =>
             {
-                var order = await db.Orders.FindAsync(id);
-                if (order == null)
+                var success = await service.UpdateOrderStatusAsync(id, newStatus);
+                if (!success)
                     return Results.NotFound();
 
-                order.Status = newStatus;
-                await db.SaveChangesAsync();
-
-                return Results.Ok(order);
-            });
-
-            // Delete order (optional, you might want to just cancel instead of delete)
-            group.MapDelete("/orders/{id}", async (int id, ApplicationDbContext db) =>
-            {
-                var order = await db.Orders.FindAsync(id);
-                if (order == null)
-                    return Results.NotFound();
-
-                db.Orders.Remove(order);
-                await db.SaveChangesAsync();
-
-                return Results.Ok();
+                return Results.NoContent();
             });
 
             return group;
+            }
         }
     }
-}
