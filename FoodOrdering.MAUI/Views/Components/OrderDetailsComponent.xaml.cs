@@ -90,7 +90,8 @@ public partial class OrderDetailsComponent : ContentView
 
         // Set address text without trailing bullet point
         AddressText = order.IsDelivery
-            ? $"{order.FullAddress}, Taupō"
+            ? $" {(order.CustomerAddress.Unit != string.Empty ? $"Unit {order.CustomerAddress.Unit}, " : "")}{order.CustomerAddress.StreetNumber}, {order.CustomerAddress.StreetName}, {order.CustomerAddress.Suburb}, Taupō"
+
             : STORE_ADDRESS;
         }
 

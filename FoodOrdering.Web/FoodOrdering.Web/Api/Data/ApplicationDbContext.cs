@@ -53,7 +53,7 @@ namespace FoodOrdering.Web.Api.Data
                 entity.Property(e => e.FullName).IsRequired().HasMaxLength(100);
 
                
-                entity.Property(e => e.FullAddress).IsRequired().HasMaxLength(200);
+                entity.Property(e => e.FullAddress).HasMaxLength(200);
 
                 entity.HasMany(e => e.Items)
                     .WithOne(e => e.Order)

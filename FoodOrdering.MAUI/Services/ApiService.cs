@@ -23,10 +23,14 @@ namespace FoodOrdering.MAUI.Services
         private readonly HttpClient _httpClient;
 
         public ApiService()
-        {
-            _httpClient = new HttpClient();
-
+            {
 #if DEBUG
+            var handler = new HttpClientHandler();
+            handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true;
+            _httpClient = new HttpClient(handler);
+
+
+
             // Use different URLs based on platform when debugging
             var baseUrl = DeviceInfo.Platform == DevicePlatform.Android
                 ? "https://10.0.2.2:7235"  // Android Emulator
@@ -34,12 +38,16 @@ namespace FoodOrdering.MAUI.Services
 
             Debug.WriteLine($"Using base URL: {baseUrl}");
             _httpClient.BaseAddress = new Uri(baseUrl);
+#else
+        _httpClient = new HttpClient();
+        _httpClient.BaseAddress = new Uri("https://your-production-api-url.com");
+#endif
 
             // Add accept header
             _httpClient.DefaultRequestHeaders.Accept.Clear();
             _httpClient.DefaultRequestHeaders.Accept.Add(
                 new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-#endif
+
         }
 
         // Menu Items

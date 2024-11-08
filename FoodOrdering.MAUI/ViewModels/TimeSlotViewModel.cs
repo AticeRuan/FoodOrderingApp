@@ -28,7 +28,7 @@ namespace FoodOrdering.MAUI.ViewModels
 
             DateTime slotTime;
 
-            if (selectedDate.Date == currentTime.Date)
+            if (selectedDate.Date == currentTime.Date && currentTime.TimeOfDay > TimeSpan.FromHours(11))
                 {
                 int minutesToNextQuarter = 30 - (currentTime.Minute % 15);
                 slotTime = currentTime.AddMinutes(minutesToNextQuarter).AddSeconds(-currentTime.Second);

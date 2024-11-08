@@ -22,10 +22,11 @@ namespace FoodOrdering.MAUI.ViewModels
                        ?? throw new InvalidOperationException("OrderService not found");
             DateViewModel = new DateSlotViewModel();
             TimeViewModel = new TimeSlotViewModel();
-            firstName = string.Empty;
-            lastName = string.Empty;
+            firstName = _orderService.CurrentOrder.CustomerName.FirstName ?? string.Empty;
+            lastName = _orderService.CurrentOrder.CustomerName.LastName ?? string.Empty;
             _selectedDateSlot = new DateSlot { Id = 0, Date = DateTime.Today };
             TimeViewModel.LoadTimeSlots(SelectedDateSlot.Date);
+
             DateViewModel.PropertyChanged += (s, e) =>
             {
                 if (e.PropertyName == nameof(DateViewModel.SelectedDateSlot))

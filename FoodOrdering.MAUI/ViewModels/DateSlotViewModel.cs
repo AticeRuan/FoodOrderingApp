@@ -10,8 +10,7 @@ namespace FoodOrdering.MAUI.ViewModels
         public DateSlotViewModel()
             {
             DateSlots = new ObservableCollection<DateSlot>();
-            SelectedDateSlot = new DateSlot();
-            LoadDateSlots();
+             LoadDateSlots();
             SelectedDateSlot = DateSlots.FirstOrDefault() ?? new DateSlot();
             }
 
@@ -26,7 +25,7 @@ namespace FoodOrdering.MAUI.ViewModels
 
         private void LoadDateSlots()
             {
-            DateTime today = DateTime.UtcNow.ToLocalTime();
+            DateTime today = DateTime.Today.Date;
             int slotId = 1;
 
             // Check if the current time is after 9 PM

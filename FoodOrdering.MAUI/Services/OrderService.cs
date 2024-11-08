@@ -5,15 +5,36 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+
+
+using System.Runtime.CompilerServices;
 
 namespace FoodOrdering.MAUI.Services
     {
     public class OrderService
         {
         // The main Order instance to hold all details
-        public Order CurrentOrder { get; private set; } = new Order();
+        public Order _currentOrder { get; private set; } = new Order();
+        public event PropertyChangedEventHandler? PropertyChanged;
+        public Order CurrentOrder
+            {
+            get => _currentOrder;
+            private set
+                {
+                if (_currentOrder != value)
+                    {
+                    _currentOrder = value;
+                    OnPropertyChanged(nameof(CurrentOrder));
+                    }
+                }
+            }
+        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+            {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            Console.WriteLine($"OrderService property changed: {propertyName}");
+            }
 
-        // Resets the order (e.g., after submission or cancellation)
         public void ResetOrder()
             {
             CurrentOrder = new Order();
@@ -41,6 +62,10 @@ namespace FoodOrdering.MAUI.Services
         public void AddOrderItem(OrderItem item)
             {
             CurrentOrder.Items.Add(item);
+            CurrentOrder.UpdateTotalAmount();
+            OnPropertyChanged(nameof(CurrentOrder));
+            Console.WriteLine($"Item added to order. Total items: {CurrentOrder.Items.Count}");
             }
         }
-    }
+        }
+    

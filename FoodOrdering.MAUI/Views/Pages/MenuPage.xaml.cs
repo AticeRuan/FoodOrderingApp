@@ -1,3 +1,4 @@
+
 using FoodOrdering.MAUI.Services;
 using FoodOrdering.MAUI.ViewModels;
 
@@ -7,10 +8,10 @@ public partial class MenuPage : ContentPage
     {
     private readonly MenuPageViewModel _viewModel;
 
-    public MenuPage(MenuNavigationService navigationService)
+    public MenuPage(MenuNavigationService navigationService,IApiService apiService)
         {
         InitializeComponent();
-        _viewModel = new MenuPageViewModel(navigationService);
+        _viewModel = new MenuPageViewModel(navigationService, apiService);
         BindingContext = _viewModel;
 
         // Connect ScrollView to ViewModel
@@ -26,5 +27,11 @@ public partial class MenuPage : ContentPage
         {
         base.OnAppearing();
         _viewModel.OnPageAppearing();
+        }
+
+    protected override void OnDisappearing()
+        {
+        base.OnDisappearing();
+        _viewModel.Cleanup();
         }
     }

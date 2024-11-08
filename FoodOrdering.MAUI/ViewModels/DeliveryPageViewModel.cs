@@ -24,14 +24,15 @@ namespace FoodOrdering.MAUI.ViewModels
                        ?? throw new InvalidOperationException("OrderService not found");
             DateViewModel = new DateSlotViewModel();
             TimeViewModel = new TimeSlotViewModel();
-            FirstName = string.Empty;
-            LastName = string.Empty;
-            PhoneNumber = string.Empty;
-            UnitNumber = string.Empty;
-            StreetNumber = string.Empty;
-            StreetName = string.Empty;
-            Suburb = string.Empty;
-            SelectedDateSlot = new DateSlot();
+            Console.WriteLine(_orderService.CurrentOrder);
+            FirstName = _orderService.CurrentOrder.CustomerName.FirstName??string.Empty;
+            LastName = _orderService.CurrentOrder.CustomerName.LastName ?? string.Empty;
+            PhoneNumber = _orderService.CurrentOrder.CustomerPhone??string.Empty;
+            UnitNumber = _orderService.CurrentOrder.CustomerAddress.Unit??string.Empty;
+            StreetNumber = _orderService.CurrentOrder.CustomerAddress.StreetNumber??string.Empty;
+            StreetName = _orderService.CurrentOrder.CustomerAddress.StreetName?? string.Empty;
+            Suburb = _orderService.CurrentOrder.CustomerAddress.Suburb?? string.Empty;
+            SelectedDateSlot = new DateSlot { Id = 0, Date = DateTime.Today };
             SelectedTimeSlot = new TimeSlot();
             TimeViewModel.LoadTimeSlots(DateViewModel.SelectedDateSlot.Date);
 
@@ -114,6 +115,7 @@ namespace FoodOrdering.MAUI.ViewModels
                     };
                 _orderService.SetName(FirstName, LastName);
                 _orderService.SetAddress(address);
+                _orderService.CurrentOrder.CustomerPhone = PhoneNumber;
                 _orderService.SetPickupOrDelivery(isDelivery: true, scheduledDateTime: SelectedDateSlot.Date + SelectedTimeSlot.StartTime.TimeOfDay);
                 
                 
