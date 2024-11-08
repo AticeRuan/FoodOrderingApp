@@ -46,6 +46,7 @@ namespace FoodOrdering.MAUI
             builder.Services.AddTransient<PickupPageViewModel>();
             builder.Services.AddTransient<DeliveryPageViewModel>();
             builder.Services.AddTransient<MenuPageViewModel>();
+            builder.Services.AddTransient<CartPageViewModel>();
 
 
 #if DEBUG

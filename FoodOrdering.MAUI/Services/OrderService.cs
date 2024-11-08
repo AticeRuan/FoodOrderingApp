@@ -35,10 +35,15 @@ namespace FoodOrdering.MAUI.Services
             Console.WriteLine($"OrderService property changed: {propertyName}");
             }
 
+        public void NotifyPropertyChanged(string propertyName)
+            {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            }
         public void ResetOrder()
             {
             CurrentOrder = new Order();
             CurrentOrder.SetCustomerDetails(CurrentOrder.CustomerName,CurrentOrder.CustomerAddress);
+            NotifyPropertyChanged(nameof(CurrentOrder));
             }
 
         // Additional methods to set individual properties if needed
@@ -63,8 +68,31 @@ namespace FoodOrdering.MAUI.Services
             {
             CurrentOrder.Items.Add(item);
             CurrentOrder.UpdateTotalAmount();
-            OnPropertyChanged(nameof(CurrentOrder));
+            NotifyPropertyChanged(nameof(CurrentOrder));
             Console.WriteLine($"Item added to order. Total items: {CurrentOrder.Items.Count}");
+            }
+        public void UpdateOrder()
+            {
+            CurrentOrder.UpdateTotalAmount();
+            NotifyPropertyChanged(nameof(CurrentOrder));
+            }
+        public void RemoveItem(OrderItem item)
+            {
+            if (CurrentOrder.Items.Remove(item))
+                {
+                CurrentOrder.UpdateTotalAmount();
+                NotifyPropertyChanged(nameof(CurrentOrder));
+                }
+            }
+
+        public void UpdateItemQuantity(OrderItem item, int newQuantity)
+            {
+            if (item != null && newQuantity > 0)
+                {
+                item.Quantity = newQuantity;
+                CurrentOrder.UpdateTotalAmount();
+                NotifyPropertyChanged(nameof(CurrentOrder));
+                }
             }
         }
         }

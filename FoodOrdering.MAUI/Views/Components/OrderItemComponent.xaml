@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="FoodOrdering.MAUI.Views.Components.OrderItemComponent">
+
+    <Border BackgroundColor="{StaticResource BackgroundGrey}"
+            Padding="15"
+            Margin="0,5"
+            StrokeThickness="0">
+        <Border.StrokeShape>
+            <RoundRectangle CornerRadius="10"/>
+        </Border.StrokeShape>
+
+        <HorizontalStackLayout Spacing="30" HorizontalOptions="CenterAndExpand">
+            <!-- Remove Button -->
+            <ImageButton Source="remove.png"
+                        HeightRequest="18"
+                        WidthRequest="18"
+                        Aspect="AspectFit"
+                        BackgroundColor="Transparent"
+                        Clicked="OnRemoveClicked"
+                        VerticalOptions="Center"/>
+
+            <!-- Item Details -->
+            <VerticalStackLayout HorizontalOptions="StartAndExpand">
+                <Label Text="{Binding MenuItem.Name}"
+                       TextColor="{StaticResource TextPrimary}"
+                       FontFamily="PBold"
+                       FontSize="16"/>
+                <Label Text="{Binding TotalPrice, StringFormat='${0:F2}'}"
+                       TextColor="{StaticResource LogoGold}"
+                       FontFamily="PMedium"
+                       FontSize="14"/>
+            </VerticalStackLayout>
+
+            <!-- Quantity Controls -->
+            <Border BackgroundColor="{StaticResource BackgroundBrown}"
+                    StrokeThickness="0"
+                    Padding="8"
+                    VerticalOptions="Center">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="8"/>
+                </Border.StrokeShape>
+                <HorizontalStackLayout Spacing="15">
+                    <Button Text="-"
+                            FontSize="20"
+                            FontFamily="PBold"
+                            HeightRequest="35"
+                            WidthRequest="35"
+                            Padding="0"
+                            BackgroundColor="Transparent"
+                            TextColor="{StaticResource TextPrimary}"
+                            Clicked="OnDecrementClicked"
+                           />
+
+                    <Label Text="{Binding Quantity}"
+                           TextColor="{StaticResource TextPrimary}"
+                           FontFamily="PMedium"
+                           FontSize="16"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"
+                           WidthRequest="30"
+                           HorizontalTextAlignment="Center"/>
+
+                    <Button Text="+"
+                            FontSize="20"
+                            FontFamily="PBold"
+                            HeightRequest="35"
+                            WidthRequest="35"
+                            Padding="0"
+                            BackgroundColor="Transparent"
+                            TextColor="{StaticResource TextPrimary}"
+                            Clicked="OnIncrementClicked"/>
+                </HorizontalStackLayout>
+            </Border>
+        </HorizontalStackLayout>
+    </Border>
+</ContentView>

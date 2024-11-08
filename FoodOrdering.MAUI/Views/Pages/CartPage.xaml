@@ -1,12 +1,82 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:components="clr-namespace:FoodOrdering.MAUI.Views.Components"
+             xmlns:converters="clr-namespace:FoodOrdering.MAUI.Converters"
              x:Class="FoodOrdering.MAUI.Pages.CartPage"
-             Title="CartPage">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+             Title="My Cart"
+             BackgroundColor="{StaticResource BackgroundBrown}">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:InverseBoolConverter x:Key="InverseBoolConverter"/>
+       
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,*,Auto" Padding="20">
+        <!-- Header -->
+        <Label Text="My Cart"
+               Grid.Row="0"
+               TextColor="{StaticResource TextPrimary}"
+               FontFamily="PBold"
+               FontSize="30"
+               Margin="0,0,0,20"/>
+
+        <!-- Order Items List -->
+        <ScrollView Grid.Row="1">
+            <CollectionView ItemsSource="{Binding OrderItems}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <components:OrderItemComponent OrderItem="{Binding .}"/>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center">
+                        <Label Text="Your cart is empty"
+                               TextColor="{StaticResource TextSecondary}"
+                               FontFamily="PRegular"
+                               FontSize="18"
+                               HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+            </CollectionView>
+        </ScrollView>
+
+        <!-- Order Summary and Button -->
+        <Border Grid.Row="2"
+                BackgroundColor="{StaticResource BackgroundGrey}"
+                Padding="20"
+                Margin="0,20,0,0"
+                StrokeThickness="0">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="12"/>
+            </Border.StrokeShape>
+
+            <Grid RowDefinitions="Auto,Auto" RowSpacing="15">
+                <!-- Order Summary -->
+                <Grid ColumnDefinitions="*,Auto" Grid.Row="0">
+                    <VerticalStackLayout Spacing="5">
+                        <Label Text="{Binding TotalItems, StringFormat='{0} items'}"
+                               TextColor="{StaticResource TextPrimary}"
+                               FontFamily="PRegular"
+                               FontSize="16"/>
+                        <Label Text="{Binding TotalPrice, StringFormat='Total: ${0:F2}'}"
+                               TextColor="{StaticResource LogoGold}"
+                               FontFamily="PBold"
+                               FontSize="20"/>
+                    </VerticalStackLayout>
+                </Grid>
+
+                <!-- Order Button -->
+                <components:CustomButton Grid.Row="1"
+                                       Text="Order Now"
+                                       Width="200"
+                                       BackgroundColor="{StaticResource LogoRed}"
+                                       TextColor="{StaticResource TextPrimary}"
+                                       CornerRadius="10"
+                                       Command="{Binding PlaceOrderCommand}"
+                                       IsEnabled="{Binding IsOrdering, Converter={StaticResource InverseBoolConverter}}"/>
+            </Grid>
+        </Border>
+    </Grid>
 </ContentPage>
