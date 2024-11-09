@@ -30,10 +30,16 @@
                             </Border.BackgroundColor>
                             <Border.Triggers>
                                 <DataTrigger TargetType="Border"
-                                           Binding="{Binding IsSelected}"
-                                           Value="True">
+                     Binding="{Binding IsSelected, Mode=TwoWay}"
+                     Value="True">
                                     <Setter Property="BackgroundColor"
-                                            Value="{StaticResource LogoRed}" />
+                    Value="{StaticResource LogoRed}" />
+                                </DataTrigger>
+                                <DataTrigger TargetType="Border"
+                     Binding="{Binding IsSelected, Mode=TwoWay}"
+                     Value="False">
+                                    <Setter Property="BackgroundColor"
+                    Value="Transparent" />
                                 </DataTrigger>
                             </Border.Triggers>
                             <Border.StrokeShape>

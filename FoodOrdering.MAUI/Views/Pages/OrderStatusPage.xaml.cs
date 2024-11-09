@@ -1,9 +1,13 @@
-namespace FoodOrdering.MAUI.Views.Pages;
+using FoodOrdering.MAUI.ViewModels;
+namespace FoodOrdering.MAUI.Pages;
 
-public partial class OrderStatusPage : ContentView
-{
-	public OrderStatusPage()
-	{
-		InitializeComponent();
-	}
-}
+public partial class OrderStatusPage : ContentPage
+    {
+    private OrderStatusViewModel viewModel;
+    public OrderStatusPage()
+        {
+        InitializeComponent();
+        viewModel = new OrderStatusViewModel();
+        BindingContext = viewModel;
+        }
+    }

@@ -22,11 +22,36 @@ namespace FoodOrdering.MAUI.ViewModels
                        ?? throw new InvalidOperationException("OrderService not found");
             DateViewModel = new DateSlotViewModel();
             TimeViewModel = new TimeSlotViewModel();
-            firstName = _orderService.CurrentOrder.CustomerName.FirstName ?? string.Empty;
-            lastName = _orderService.CurrentOrder.CustomerName.LastName ?? string.Empty;
-            PhoneNumber = _orderService.CurrentOrder.CustomerPhone ?? string.Empty;
+            SetProperty(ref firstName, _orderService.CurrentOrder.CustomerName.FirstName ?? string.Empty, nameof(FirstName));
+            SetProperty(ref lastName, _orderService.CurrentOrder.CustomerName.LastName ?? string.Empty, nameof(LastName));
+            SetProperty(ref phoneNumber, _orderService.CurrentOrder.CustomerPhone ?? string.Empty, nameof(PhoneNumber));
+
             _selectedDateSlot = new DateSlot { Id = 0, Date = DateTime.Today };
             TimeViewModel.LoadTimeSlots(SelectedDateSlot.Date);
+            _selectedTimeSlot = TimeViewModel.SelectedTimeSlot ?? new TimeSlot();
+
+            if (_orderService.CurrentOrder.ScheduledDateTime != default)
+                {
+                var scheduledDate = _orderService.CurrentOrder.ScheduledDateTime.Date;
+                var scheduledTime = _orderService.CurrentOrder.ScheduledDateTime;
+
+                // Update date selection if within available range
+                var matchingDate = DateViewModel.DateSlots.FirstOrDefault(d => d.Date.Date == scheduledDate);
+                if (matchingDate != null)
+                    {
+                    SelectedDateSlot = matchingDate;
+                    }
+
+                // Update time selection if available
+                TimeViewModel.LoadTimeSlots(SelectedDateSlot.Date);
+                var matchingTime = TimeViewModel.TimeSlots.FirstOrDefault(t =>
+                    t.StartTime.Hour == scheduledTime.Hour &&
+                    t.StartTime.Minute == scheduledTime.Minute);
+                if (matchingTime != null)
+                    {
+                    TimeViewModel.SelectedTimeSlot = matchingTime;
+                    }
+                }
 
             DateViewModel.PropertyChanged += (s, e) =>
             {
@@ -45,12 +70,14 @@ namespace FoodOrdering.MAUI.ViewModels
                     }
             };
 
-            _selectedTimeSlot = TimeViewModel?.SelectedTimeSlot ?? new TimeSlot();
             }
 
 
         public DateSlotViewModel DateViewModel { get; }
         public TimeSlotViewModel TimeViewModel { get; }
+
+        [ObservableProperty]
+        private bool isLoading;
 
         [ObservableProperty]
         private string firstName;
@@ -90,8 +117,14 @@ namespace FoodOrdering.MAUI.ViewModels
         [RelayCommand]
         private async Task StartOrderAsync()
             {
-     
-            if (string.IsNullOrWhiteSpace(FirstName))
+
+            if (IsLoading) return;
+
+
+            try
+                {
+             
+                if (string.IsNullOrWhiteSpace(FirstName))
                 {
                 if (Application.Current?.MainPage != null)
                     {
@@ -149,9 +182,9 @@ namespace FoodOrdering.MAUI.ViewModels
                     "Continue",
                     "Cancel"
                 );
+                    IsLoading = true;
 
-              
-                if (continueOrder)
+                    if (continueOrder)
                     {
                   
                     _orderService.SetName(FirstName, LastName);
@@ -162,9 +195,17 @@ namespace FoodOrdering.MAUI.ViewModels
 
                     
                     await Shell.Current.GoToAsync(nameof(MenuPage));
-                    }
+                       
+                        }
                 }
-            
+                }
+            finally
+                {
+                IsLoading = false;
+                }
+
+
+
             }
 
         [RelayCommand]

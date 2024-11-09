@@ -18,8 +18,8 @@
                        FontFamily="PBold"
                        FontSize="16"/>
                 <Label Text="{Binding Description}" 
-                       TextColor="{StaticResource TextSecondary}"
-                       FontFamily="PRegular"
+                       TextColor="{StaticResource TextPrimary}"
+                       FontFamily="PLightr"
                        FontSize="12"/>
             </VerticalStackLayout>
 

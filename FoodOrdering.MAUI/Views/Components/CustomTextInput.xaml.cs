@@ -7,13 +7,26 @@ public partial class CustomTextInput : ContentView
         InitializeComponent();
      
         }
-    // Bindable property for Text (input value)
+
     public static readonly BindableProperty TextProperty = BindableProperty.Create(
         nameof(Text),
         typeof(string),
         typeof(CustomTextInput),
         string.Empty,
-        BindingMode.TwoWay);
+        BindingMode.TwoWay,
+        propertyChanged: (bindable, oldValue, newValue) =>
+        {
+            var control = (CustomTextInput)bindable;
+            control.UpdateEntryText((string)newValue);
+        });
+
+
+
+    protected override void OnBindingContextChanged()
+        {
+        base.OnBindingContextChanged();
+            EntryControl.BindingContext = BindingContext;
+        }
 
     public string Text
         {
@@ -57,5 +70,21 @@ public partial class CustomTextInput : ContentView
 
         // Trigger the custom event for the parent component
         TextChangedEvent?.Invoke(this, e.NewTextValue);
+        }
+
+    private void UpdateEntryText(string newValue)
+        {
+        if (EntryControl != null && EntryControl.Text != newValue)
+            {
+            EntryControl.Text = newValue;
+            }
+        }
+    protected override void OnHandlerChanged()
+        {
+        base.OnHandlerChanged();
+        if (EntryControl != null)
+            {
+            UpdateEntryText(Text);
+            }
         }
     }

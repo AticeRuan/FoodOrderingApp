@@ -28,6 +28,8 @@ namespace FoodOrdering.MAUI.ViewModels
         [ObservableProperty]
         private bool isOrdering;
 
+        public bool HasItems => OrderItems.Any();
+
         public CartPageViewModel()
             {
             _orderService = Application.Current?.Handler?.MauiContext?.Services.GetService<OrderService>()
@@ -51,8 +53,14 @@ namespace FoodOrdering.MAUI.ViewModels
         private void OrderItems_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
             {
             UpdateTotals();
+            OnPropertyChanged(nameof(HasItems));
             }
 
+        [RelayCommand]
+        private async Task NavigateToMenu()
+            {
+            await Shell.Current.GoToAsync("..");
+            }
         private void OrderService_PropertyChanged(object? sender, PropertyChangedEventArgs e)
             {
             if (e.PropertyName == nameof(OrderService.CurrentOrder))
@@ -66,6 +74,7 @@ namespace FoodOrdering.MAUI.ViewModels
                         OrderItems.Add(item);
                         }
                     UpdateTotals();
+                    OnPropertyChanged(nameof(HasItems));
                 });
                 }
             }

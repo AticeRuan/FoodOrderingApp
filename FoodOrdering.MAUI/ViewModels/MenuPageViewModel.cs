@@ -14,6 +14,11 @@ public partial class MenuPageViewModel : ObservableObject
     private ScrollView? _scrollView;
     private CollectionView? _menuItemsCollection;
     private MenuNavComponent? _menuNav;
+    private Dictionary<string, CategoryMetrics> _categoryMetrics = new();
+
+    private const double CATEGORY_HEADER_HEIGHT = 44;
+    private const double MENU_ITEM_HEIGHT = 120;     
+    private const double CATEGORY_MARGIN = 30;
 
     [ObservableProperty]
     private bool isBusy;
@@ -31,7 +36,7 @@ public partial class MenuPageViewModel : ObservableObject
         _apiService = apiService;
         _categoryGroups = new ObservableCollection<KeyValuePair<string, List<FoodMenuItem>>>();
 
-        // Subscribe to navigation service events
+       
         _navigationService.RequestScrollToCategory += OnRequestScrollToCategory;
         }
 
@@ -50,10 +55,32 @@ public partial class MenuPageViewModel : ObservableObject
         _menuNav = menuNav;
         }
 
+    private void CalculateCategoryMetrics()
+        {
+        _categoryMetrics.Clear();
+        double currentOffset = 0;
+
+        foreach (var group in CategoryGroups)
+            {
+            var itemCount = group.Value.Count;
+            var categoryHeight = CATEGORY_HEADER_HEIGHT + (itemCount * MENU_ITEM_HEIGHT);
+
+            _categoryMetrics[group.Key] = new CategoryMetrics
+                {
+                StartOffset = currentOffset,
+                Height = categoryHeight,
+                ItemCount = itemCount
+                };
+
+            currentOffset += categoryHeight + CATEGORY_MARGIN;
+            }
+        }
+
     public async void OnPageAppearing()
         {
         await LoadMenuItems();
         _menuNav?.SetCategories(Categories);
+        CalculateCategoryMetrics();
         }
     private async Task LoadMenuItems()
         {
@@ -66,12 +93,7 @@ public partial class MenuPageViewModel : ObservableObject
             // Fetch menu items from API
             var menuItems = await _apiService.GetMenuItemsAsync();
 
-            // Log the fetched data
-            Debug.WriteLine($"Fetched {menuItems.Count} menu items:");
-            foreach (var item in menuItems)
-                {
-                Debug.WriteLine($"ID: {item.Id}, Name: {item.Name}, Category: {item.Category}, Price: {item.Price}");
-                }
+       
 
             // Group items by category
             var groupedItems = menuItems
@@ -80,16 +102,7 @@ public partial class MenuPageViewModel : ObservableObject
                     group.Key, group.ToList()))
                 .OrderBy(kvp => kvp.Key);
 
-            // Log the grouped structure
-            Debug.WriteLine("\nGrouped Structure:");
-            foreach (var group in groupedItems)
-                {
-                Debug.WriteLine($"Category: {group.Key}, Items: {group.Value.Count}");
-                foreach (var item in group.Value)
-                    {
-                    Debug.WriteLine($"  - {item.Name}");
-                    }
-                }
+       
 
             foreach (var group in groupedItems)
                 {
@@ -114,6 +127,7 @@ public partial class MenuPageViewModel : ObservableObject
         finally
             {
             IsBusy = false;
+            CalculateCategoryMetrics();
             }
         }
     public void OnContentScrolled(double scrollY)
@@ -123,32 +137,30 @@ public partial class MenuPageViewModel : ObservableObject
 
     private void UpdateVisibleCategory(double scrollY)
         {
-        if (_menuItemsCollection == null) return;
+        if (_menuItemsCollection == null || !_categoryMetrics.Any()) return;
 
-        var categories = Categories.ToList();
-        var approximateItemHeight = 150; // Approximate height of each category section
+        // Find the category that contains the current scroll position
+        var visibleCategory = _categoryMetrics
+            .Where(kvp => scrollY >= kvp.Value.StartOffset)
+            .OrderByDescending(kvp => kvp.Value.StartOffset)
+            .FirstOrDefault();
 
-        // Calculate which category should be visible based on scroll position
-        int visibleIndex = (int)(scrollY / approximateItemHeight);
-        visibleIndex = Math.Min(visibleIndex, categories.Count - 1);
-        visibleIndex = Math.Max(0, visibleIndex);
-
-        var visibleCategory = categories[visibleIndex];
-        _navigationService.NotifyContentScrolled(visibleCategory);
+        if (!string.IsNullOrEmpty(visibleCategory.Key))
+            {
+            _navigationService.NotifyContentScrolled(visibleCategory.Key);
+            }
         }
 
     private async void OnRequestScrollToCategory(object? sender, string category)
         {
         if (_scrollView == null || string.IsNullOrEmpty(category)) return;
 
-        var categories = Categories.ToList();
-        var categoryIndex = categories.IndexOf(category);
-        if (categoryIndex == -1) return;
-
-        var approximateItemHeight = 150; // Approximate height of each category section
-        var targetScrollPosition = categoryIndex * approximateItemHeight;
-
-        await _scrollView.ScrollToAsync(0, targetScrollPosition, true);
+        if (_categoryMetrics.TryGetValue(category, out var metrics))
+            {
+            // Add a small offset to ensure the category header is visible
+            var targetPosition = metrics.StartOffset;
+            await _scrollView.ScrollToAsync(0, targetPosition, true);
+            }
         }
 
 
@@ -158,5 +170,11 @@ public partial class MenuPageViewModel : ObservableObject
             {
             _navigationService.RequestScrollToCategory -= OnRequestScrollToCategory;
             }
+        }
+    private class CategoryMetrics
+        {
+        public double StartOffset { get; set; }
+        public double Height { get; set; }
+        public int ItemCount { get; set; }
         }
     }

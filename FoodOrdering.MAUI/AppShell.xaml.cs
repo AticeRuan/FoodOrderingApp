@@ -1,6 +1,6 @@
 ﻿
 using FoodOrdering.MAUI.Pages;
-using FoodOrdering.MAUI.Views.Pages;
+
 
 namespace FoodOrdering.MAUI
 {

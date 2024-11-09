@@ -128,22 +128,45 @@ namespace FoodOrdering.MAUI.Services
         }
 
         public async Task<Order?> GetOrderAsync(int id)
-        {
+            {
             try
-            {
-                var response = await _httpClient.GetAsync($"/orders/{id}");
-                if (response.IsSuccessStatusCode)
                 {
-                    return await response.Content.ReadFromJsonAsync<Order>();
+                Debug.WriteLine($"Fetching order with id: {id}");
+                var response = await _httpClient.GetAsync($"/api/orders/{id}");
+
+                // Log the raw response for debugging
+                var responseContent = await response.Content.ReadAsStringAsync();
+                Debug.WriteLine($"Response status: {response.StatusCode}");
+                Debug.WriteLine($"Response content: {responseContent}");
+
+                if (!response.IsSuccessStatusCode)
+                    {
+                    Debug.WriteLine($"Error status code: {response.StatusCode}");
+                    return null;
+                    }
+
+                // Ensure we're getting JSON content
+                if (response.Content.Headers.ContentType?.MediaType != "application/json")
+                    {
+                    Debug.WriteLine("Error: Response is not JSON");
+                    return null;
+                    }
+
+                var order = await response.Content.ReadFromJsonAsync<Order>();
+                Debug.WriteLine($"Successfully deserialized order: {order?.Id}");
+                return order;
                 }
-                return null;
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Error getting order: {ex.Message}");
+            catch (JsonException ex)
+                {
+                Debug.WriteLine($"JSON parsing error: {ex.Message}");
                 throw;
+                }
+            catch (Exception ex)
+                {
+                Debug.WriteLine($"Error getting order: {ex.Message}");
+                throw;
+                }
             }
-        }
 
         public async Task<Order> CreateOrderAsync(Order order)
             {
@@ -216,7 +239,7 @@ namespace FoodOrdering.MAUI.Services
         {
             try
             {
-                var response = await _httpClient.PutAsJsonAsync($"/orders/{id}/status", newStatus);
+                var response = await _httpClient.PutAsJsonAsync($"/api/orders/{id}/status", newStatus);
                 return response.IsSuccessStatusCode;
             }
             catch (Exception ex)

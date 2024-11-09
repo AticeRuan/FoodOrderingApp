@@ -4,12 +4,21 @@
              xmlns:vm="clr-namespace:FoodOrdering.MAUI.ViewModels"
              x:Class="FoodOrdering.MAUI.Pages.PickUpPage"
              xmlns:components="clr-namespace:FoodOrdering.MAUI.Views.Components"
+              xmlns:converters="clr-namespace:FoodOrdering.MAUI.Converters"
              Title="Pick Up"
              BackgroundColor="{StaticResource BackgroundBrown}">
 
     <ContentPage.BindingContext>
         <vm:PickupPageViewModel />
     </ContentPage.BindingContext>
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:DictionaryKeyConverter x:Key="KeyConverter"/>
+            <converters:DictionaryValueConverter x:Key="ValueConverter"/>
+            <converters:InverseBoolConverter x:Key="InverseBoolConverter"/>
+        </ResourceDictionary>
+    </ContentPage.Resources>
 
     <Shell.BackButtonBehavior >
         <BackButtonBehavior IconOverride="back.png" IsVisible="False"/>
@@ -23,8 +32,18 @@
                     Command="{Binding SwitchToDeliveryCommand}"/>
         </FlexLayout>
     </Shell.TitleView>
-    <ScrollView Margin="0,0,0,20">
-    <VerticalStackLayout HorizontalOptions="Center" Padding="30,0,30,0" Spacing="20">
+    <Grid RowDefinitions="*">
+        <ActivityIndicator IsRunning="{Binding IsLoading}"
+                  IsVisible="{Binding IsLoading}"
+                  HorizontalOptions="Center"
+                  VerticalOptions="Center"
+                  Color="{StaticResource LogoGold}"
+                  HeightRequest="50"
+                  WidthRequest="50"/>
+
+        <ScrollView Margin="0,0,0,20"  IsVisible="{Binding IsLoading, Converter={StaticResource InverseBoolConverter}}">
+
+            <VerticalStackLayout HorizontalOptions="Center" Padding="30,0,30,0" Spacing="20">
         <Image Source="logo.png" WidthRequest="150"/>
         <FlexLayout AlignItems="Center" JustifyContent="SpaceAround">
             <Image Source="location.png" />
@@ -64,5 +83,5 @@
         <components:CustomButton Width="200" BackgroundColor="{StaticResource LogoRed}"
                                  CornerRadius="10" Text="Start Order" TextColor="White"
                                  Command="{Binding StartOrderCommand}" />
-    </VerticalStackLayout></ScrollView>
+    </VerticalStackLayout></ScrollView></Grid>
 </ContentPage>

@@ -14,10 +14,10 @@ public partial class MenuPage : ContentPage
         _viewModel = new MenuPageViewModel(navigationService, apiService);
         BindingContext = _viewModel;
 
-        // Connect ScrollView to ViewModel
+       
         MenuScrollView.Scrolled += (s, e) => _viewModel.OnContentScrolled(MenuScrollView.ScrollY);
 
-        // Connect visual elements to ViewModel for position calculations
+
         _viewModel.SetScrollView(MenuScrollView);
         _viewModel.SetMenuItemsCollection(MenuItems);
         _viewModel.SetMenuNav(MenuNav);

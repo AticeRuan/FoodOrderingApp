@@ -3,6 +3,7 @@
              xmlns:components="clr-namespace:FoodOrdering.MAUI.Views.Components"
              xmlns:vm="clr-namespace:FoodOrdering.MAUI.ViewModels"
              x:Class="FoodOrdering.MAUI.Pages.DeliveryPage"
+           xmlns:converters="clr-namespace:FoodOrdering.MAUI.Converters"
              Title="Delivery - Taupo"
              BackgroundColor="{StaticResource BackgroundBrown}">
 
@@ -23,7 +24,23 @@
         </FlexLayout>
     </Shell.TitleView>
 
-    <VerticalStackLayout HorizontalOptions="Center" Padding="30,30,30,0" Spacing="20">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:DictionaryKeyConverter x:Key="KeyConverter"/>
+            <converters:DictionaryValueConverter x:Key="ValueConverter"/>
+            <converters:InverseBoolConverter x:Key="InverseBoolConverter"/>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="*">
+        <ActivityIndicator IsRunning="{Binding IsLoading}"
+           IsVisible="{Binding IsLoading}"
+           HorizontalOptions="Center"
+           VerticalOptions="Center"
+           Color="{StaticResource LogoGold}"
+           HeightRequest="50"
+           WidthRequest="50"/>
+        <VerticalStackLayout HorizontalOptions="Center" Padding="30,30,30,0" Spacing="20"  IsVisible="{Binding IsLoading, Converter={StaticResource InverseBoolConverter}}">
         <!-- User Input Fields -->
         <Border StrokeThickness="1" Stroke="{StaticResource BackgroundGrey}">
             <Border.StrokeShape>
@@ -55,5 +72,6 @@
         <!-- Start Order Button -->
         <components:CustomButton Text="Start Order" Width="200" BackgroundColor="{StaticResource LogoRed}"
                                  CornerRadius="10" TextColor="White" Command="{Binding StartOrderCommand}" />
-    </VerticalStackLayout>
+        </VerticalStackLayout>
+    </Grid>
 </ContentPage>

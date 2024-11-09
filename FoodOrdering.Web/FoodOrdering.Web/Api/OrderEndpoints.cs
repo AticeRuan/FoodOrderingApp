@@ -19,13 +19,25 @@ namespace FoodOrdering.Web.Api
             // Get order by id
             group.MapGet("/orders/{id}", async (int id, [FromServices] IFoodOrderingService service) =>
             {
-                var order = await service.GetOrderAsync(id);
-                if (order == null)
-                    return Results.NotFound();
+                try
+                    {
+                    var order = await service.GetOrderAsync(id);
+                    if (order == null)
+                        return Results.NotFound();
 
-                return Results.Ok(order);
+                    // Break circular references before serialization
+                    foreach (var item in order.Items)
+                        {
+                        item.Order = null; // Remove circular reference
+                        }
+
+                    return Results.Ok(order);
+                    }
+                catch (Exception ex)
+                    {
+                    return Results.Problem($"Error retrieving order: {ex.Message}");
+                    }
             });
-
             // Create new order
             group.MapPost("/orders", async ([FromBody] Order order, [FromServices] IFoodOrderingService service) =>
             {

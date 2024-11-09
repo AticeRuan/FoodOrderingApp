@@ -33,8 +33,34 @@ namespace FoodOrdering.MAUI.ViewModels
             StreetName = _orderService.CurrentOrder.CustomerAddress.StreetName?? string.Empty;
             Suburb = _orderService.CurrentOrder.CustomerAddress.Suburb?? string.Empty;
             SelectedDateSlot = new DateSlot { Id = 0, Date = DateTime.Today };
-            SelectedTimeSlot = new TimeSlot();
             TimeViewModel.LoadTimeSlots(DateViewModel.SelectedDateSlot.Date);
+            SelectedTimeSlot = TimeViewModel.SelectedTimeSlot ?? new TimeSlot();
+
+
+          
+
+            if (_orderService.CurrentOrder.ScheduledDateTime != default)
+                {
+                var scheduledDate = _orderService.CurrentOrder.ScheduledDateTime.Date;
+                var scheduledTime = _orderService.CurrentOrder.ScheduledDateTime;
+
+                // Update date selection if within available range
+                var matchingDate = DateViewModel.DateSlots.FirstOrDefault(d => d.Date.Date == scheduledDate);
+                if (matchingDate != null)
+                    {
+                    SelectedDateSlot = matchingDate;
+                    }
+
+                // Update time selection if available
+                TimeViewModel.LoadTimeSlots(SelectedDateSlot.Date);
+                var matchingTime = TimeViewModel.TimeSlots.FirstOrDefault(t =>
+                    t.StartTime.Hour == scheduledTime.Hour &&
+                    t.StartTime.Minute == scheduledTime.Minute);
+                if (matchingTime != null)
+                    {
+                    TimeViewModel.SelectedTimeSlot = matchingTime;
+                    }
+                }
 
             // Subscribe to DateViewModel changes
             DateViewModel.PropertyChanged += (s, e) =>
@@ -51,7 +77,7 @@ namespace FoodOrdering.MAUI.ViewModels
             {
                 if (e.PropertyName == nameof(TimeViewModel.SelectedTimeSlot))
                     {
-                    SelectedTimeSlot = TimeViewModel.SelectedTimeSlot;
+                    SelectedTimeSlot = TimeViewModel.SelectedTimeSlot??new TimeSlot();
                     }
             };
             }
@@ -66,6 +92,9 @@ namespace FoodOrdering.MAUI.ViewModels
         [ObservableProperty] private string streetNumber;
         [ObservableProperty] private string streetName;
         [ObservableProperty] private string suburb;
+        [ObservableProperty]
+        private bool isLoading;
+
 
         [ObservableProperty] private DateSlot selectedDateSlot;
         [ObservableProperty] private TimeSlot selectedTimeSlot;
@@ -73,8 +102,8 @@ namespace FoodOrdering.MAUI.ViewModels
         [RelayCommand]
         private async Task StartOrderAsync()
             {
-            // Validate inputs
-            if (string.IsNullOrWhiteSpace(FirstName) ||
+            if (IsLoading) return;
+            try { if (string.IsNullOrWhiteSpace(FirstName) ||
                 string.IsNullOrWhiteSpace(LastName) ||
                 string.IsNullOrWhiteSpace(PhoneNumber) ||       
                 string.IsNullOrWhiteSpace(StreetNumber) ||
@@ -102,8 +131,9 @@ namespace FoodOrdering.MAUI.ViewModels
                 {
                 confirm = await Application.Current.MainPage.DisplayAlert("Confirm Delivery Details", message, "Continue", "Cancel");
                 }
+                IsLoading = true;
 
-            if (confirm)
+                if (confirm)
                 {
                 // Set details in OrderService
                 var address = new Address
@@ -122,7 +152,9 @@ namespace FoodOrdering.MAUI.ViewModels
 
                 // Navigate to MenuPage
                 await Shell.Current.GoToAsync(nameof(MenuPage));
-                }
+                } } finally { IsLoading = false; }
+
+           
             }
 
         [RelayCommand]

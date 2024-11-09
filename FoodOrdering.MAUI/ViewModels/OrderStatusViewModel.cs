@@ -5,7 +5,7 @@ using FoodOrdering.Shared.Enums;
 using FoodOrdering.Shared.Models;
 using System.Timers;
 using System.Diagnostics;
-
+using System.Text.Json;
 namespace FoodOrdering.MAUI.ViewModels
     {
     [QueryProperty(nameof(OrderId), "orderId")]
@@ -22,7 +22,16 @@ namespace FoodOrdering.MAUI.ViewModels
         private OrderStatus currentStatus;
 
         [ObservableProperty]
-        private bool canCancelOrder;
+        private bool showCancelButton;
+
+        [ObservableProperty]
+        private bool showNewOrderButton;
+
+        [ObservableProperty]
+        private string errorMessage = string.Empty;
+
+        [ObservableProperty]
+        private bool hasError;
 
         // Status colors
         [ObservableProperty] private Color pendingColor;
@@ -41,10 +50,14 @@ namespace FoodOrdering.MAUI.ViewModels
         [ObservableProperty] private bool isReadyCompleted;
         [ObservableProperty] private bool isCompletedCompleted;
 
-        public OrderStatusViewModel(IApiService apiService, OrderService orderService)
+        public OrderStatusViewModel()
             {
-            _apiService = apiService;
-            _orderService = orderService;
+            _apiService = Application.Current?.Handler?.MauiContext?.Services.GetService<IApiService>()
+                ?? throw new InvalidOperationException("ApiService not found");
+            _orderService = Application.Current?.Handler?.MauiContext?.Services.GetService<OrderService>()
+                ?? throw new InvalidOperationException("OrderService not found");
+
+       
 
             // Initialize timer
             _refreshTimer = new System.Timers.Timer(10000); // 10 seconds
@@ -53,45 +66,130 @@ namespace FoodOrdering.MAUI.ViewModels
             _refreshTimer.Start();
 
             // Initial fetch
-            RefreshOrderStatus();
-            }
-
-        private async void RefreshTimer_Elapsed(object? sender, ElapsedEventArgs e)
-            {
-            await RefreshOrderStatus();
+            _ = RefreshOrderStatus();
             }
 
         private async Task RefreshOrderStatus()
             {
             try
                 {
+                Debug.WriteLine($"Refreshing status for order {OrderId}");
                 var order = await _apiService.GetOrderAsync(OrderId);
+
                 if (order != null)
                     {
                     CurrentStatus = order.Status;
                     UpdateStatusColors();
-                    CanCancelOrder = CurrentStatus == OrderStatus.Pending;
+                    UpdateButtonVisibility();
+
+              
+                    if (CurrentStatus == OrderStatus.Completed)
+                        {
+                        _refreshTimer?.Stop();
+                        Debug.WriteLine("Order completed, stopping refresh timer");
+                        }
+                    HasError = false;
+                    ErrorMessage = string.Empty;
                     }
+                else
+                    {
+                    HandleError("Unable to fetch order status");
+                    }
+                }
+            catch (HttpRequestException ex)
+                {
+                Debug.WriteLine($"HTTP error refreshing order status: {ex.Message}");
+                HandleError("Network error occurred while fetching order status");
+                }
+            catch (JsonException ex)
+                {
+                Debug.WriteLine($"JSON error refreshing order status: {ex.Message}");
+                HandleError("Error processing server response");
                 }
             catch (Exception ex)
                 {
-                // Handle error
                 Debug.WriteLine($"Error refreshing order status: {ex.Message}");
+                HandleError("An unexpected error occurred");
+                }
+            }
+
+        private void UpdateButtonVisibility()
+            {
+            ShowCancelButton = CurrentStatus != OrderStatus.Completed;
+            ShowNewOrderButton = CurrentStatus == OrderStatus.Completed;
+            }
+        private void HandleError(string message)
+            {
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                ErrorMessage = message;
+                HasError = true;
+            });
+            }
+        [RelayCommand]
+        private async Task NewOrder()
+            {
+            try
+                {
+                // Reset the order service for a new order
+                _orderService.ResetOrder();
+
+                // Navigate back to the main page
+                await Shell.Current.GoToAsync("//MainPage");
+                }
+            catch (Exception ex)
+                {
+                Debug.WriteLine($"Error starting new order: {ex.Message}");
+                await Shell.Current.DisplayAlert(
+                    "Error",
+                    "Unable to start a new order. Please try again.",
+                    "OK");
+                }
+            }
+        private void StartRefreshTimer()
+            {
+            _refreshTimer?.Stop();
+            _refreshTimer?.Dispose();
+
+            _refreshTimer = new System.Timers.Timer(1000); // 10 seconds
+            _refreshTimer.Elapsed += RefreshTimer_Elapsed;
+            _refreshTimer.AutoReset = true;
+            if (CurrentStatus != OrderStatus.Completed)
+                {
+                _refreshTimer.Start();
+                }
+            }
+
+        private async void RefreshTimer_Elapsed(object? sender, ElapsedEventArgs e)
+            {
+            if (CurrentStatus != OrderStatus.Completed)
+                {
+                await RefreshOrderStatus();
+                }
+            }
+
+        partial void OnOrderIdChanged(int value)
+            {
+            Debug.WriteLine($"OrderId changed to: {value}");
+            if (value > 0)
+                {
+                StartRefreshTimer();
+                RefreshOrderStatus().ConfigureAwait(false);
                 }
             }
 
         private void UpdateStatusColors()
             {
-            var completedColor = Colors.Gold;
-            var pendingColor = Colors.Grey;
+            var completedColor = Color.FromArgb("#F8D581"); // Gold color
+            var pendingColor = Color.FromArgb("#9B9B9B"); // Darker gray
 
-            // Update status colors
+            // Update status colors based on current status
             PendingColor = CurrentStatus >= OrderStatus.Pending ? completedColor : pendingColor;
             ConfirmedColor = CurrentStatus >= OrderStatus.Confirmed ? completedColor : pendingColor;
             ReadyColor = CurrentStatus >= OrderStatus.Ready ? completedColor : pendingColor;
             CompletedColor = CurrentStatus >= OrderStatus.Completed ? completedColor : pendingColor;
 
-            // Update line colors
+            // Update connecting line colors - showing progress to next state
             PendingLineColor = CurrentStatus > OrderStatus.Pending ? completedColor : pendingColor;
             ConfirmedLineColor = CurrentStatus > OrderStatus.Confirmed ? completedColor : pendingColor;
             ReadyLineColor = CurrentStatus > OrderStatus.Ready ? completedColor : pendingColor;

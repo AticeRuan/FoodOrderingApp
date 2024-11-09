@@ -58,6 +58,7 @@ public partial class OrderItemComponent : ContentView, INotifyPropertyChanged
             currentOrder.Items.Remove(OrderItem);
             currentOrder.UpdateTotalAmount();
             _orderService.NotifyPropertyChanged(nameof(OrderService.CurrentOrder));
+        
         });
         }
 

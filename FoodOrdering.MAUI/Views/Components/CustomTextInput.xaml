@@ -11,7 +11,7 @@
 
         </Border.StrokeShape>
         <Entry x:Name="EntryControl"
-           Text="{Binding Text, Mode=TwoWay}"
+           Text="{Binding Text,Source={x:Reference Self}, Mode=TwoWay}"
            WidthRequest="{Binding Mode=OneWay,Source={x:Reference Self},Path=Width}"
            TextColor="White"
            PlaceholderColor="{StaticResource TextSecondary}"

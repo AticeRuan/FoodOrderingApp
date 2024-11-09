@@ -28,54 +28,63 @@
 
 
 
-    <Grid RowDefinitions="Auto,*,Auto">
-        <!-- Navigation Bar -->
-        <components:MenuNavComponent Grid.Row="0" 
-                                   x:Name="MenuNav"/>
+    <AbsoluteLayout>
+        <!-- Main Content Grid -->
+        <Grid RowDefinitions="Auto,*"
+              AbsoluteLayout.LayoutBounds="0,0,1,1"
+              AbsoluteLayout.LayoutFlags="All">
 
-        <!-- Menu Content with Loading Indicator -->
-        <Grid Grid.Row="1">
-            <ActivityIndicator IsRunning="{Binding IsBusy}"
-                             IsVisible="{Binding IsBusy}"
-                             HorizontalOptions="Center"
-                             VerticalOptions="Center"
-                             Color="{StaticResource LogoGold}"/>
+            <!-- Navigation Bar -->
+            <components:MenuNavComponent Grid.Row="0" 
+                                       x:Name="MenuNav"/>
 
-            <ScrollView x:Name="MenuScrollView"
-                       IsVisible="{Binding IsBusy, Converter={StaticResource InverseBoolConverter}}">
-                <VerticalStackLayout Padding="15,0" Spacing="20">
-                    <CollectionView ItemsSource="{Binding CategoryGroups}"
-                                  x:Name="MenuItems">
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate>
-                                <VerticalStackLayout Spacing="10">
-                                    <!-- Category Header -->
-                                    <Label Text="{Binding Key}" 
-                                           TextColor="{StaticResource LogoGold}"
-                                           FontFamily="PBold"
-                                           FontSize="24"
-                                           Margin="0,10"/>
+            <!-- Menu Content with Loading Indicator -->
+            <Grid Grid.Row="1">
+                <ActivityIndicator IsRunning="{Binding IsBusy}"
+                                 IsVisible="{Binding IsBusy}"
+                                 HorizontalOptions="Center"
+                                 VerticalOptions="Center"
+                                 Color="{StaticResource LogoGold}"/>
 
-                                    <!-- Menu Items -->
-                                    <CollectionView ItemsSource="{Binding Value}"
-                                                  ItemsLayout="VerticalList">
-                                        <CollectionView.ItemTemplate>
-                                            <DataTemplate>
-                                                <components:MenuItemComponent 
-                                                    BindingContext="{Binding .}" MenuItem="{Binding .}"/>
-                                            </DataTemplate>
-                                        </CollectionView.ItemTemplate>
-                                    </CollectionView>
-                                </VerticalStackLayout>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
-                </VerticalStackLayout>
-            </ScrollView>
+                <ScrollView x:Name="MenuScrollView"
+                           IsVisible="{Binding IsBusy, Converter={StaticResource InverseBoolConverter}}">
+                    <VerticalStackLayout Padding="15,0" Spacing="20" Margin="0,0,0,100">
+                        <CollectionView ItemsSource="{Binding CategoryGroups}"
+                                      x:Name="MenuItems">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <VerticalStackLayout Spacing="10">
+                                        <!-- Category Header -->
+                                        <Label Text="{Binding Key}" 
+                                               TextColor="{StaticResource LogoGold}"
+                                               FontFamily="PBold"
+                                               FontSize="24"
+                                               Margin="0,10"/>
+
+                                        <!-- Menu Items -->
+                                        <CollectionView ItemsSource="{Binding Value}"
+                                                      ItemsLayout="VerticalList">
+                                            <CollectionView.ItemTemplate>
+                                                <DataTemplate>
+                                                    <components:MenuItemComponent 
+                                                        BindingContext="{Binding .}" MenuItem="{Binding .}"/>
+                                                </DataTemplate>
+                                            </CollectionView.ItemTemplate>
+                                        </CollectionView>
+                                    </VerticalStackLayout>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+                </ScrollView>
+            </Grid>
         </Grid>
 
-        <!-- Cart Summary -->
-        <components:CartSummaryComponent Grid.Row="2"/>
-    </Grid>
+        <!-- Cart Summary Overlay -->
+        <components:CartSummaryComponent 
+            AbsoluteLayout.LayoutBounds="0,1,1,AutoSize"
+            AbsoluteLayout.LayoutFlags="PositionProportional,WidthProportional"/>
+
+    </AbsoluteLayout>
 
 </ContentPage>

@@ -27,23 +27,41 @@
 
 
         <!-- Order Items List -->
-        <ScrollView Grid.Row="1">
-            <CollectionView ItemsSource="{Binding OrderItems}">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <components:OrderItemComponent OrderItem="{Binding .}"/>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-                <CollectionView.EmptyView>
-                    <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center">
-                        <Label Text="Your cart is empty"
-                               TextColor="{StaticResource TextSecondary}"
-                               FontFamily="PRegular"
-                               FontSize="18"
-                               HorizontalOptions="Center"/>
-                    </VerticalStackLayout>
-                </CollectionView.EmptyView>
-            </CollectionView>
+        <ScrollView Grid.Row="0">
+    
+            <Grid>
+                <ActivityIndicator IsVisible="{Binding isOrdering}"/>
+   
+                <Grid IsVisible="{Binding isOrdering,Converter={StaticResource InverseBoolConverter} }">
+                <!-- Empty Cart State -->
+                <VerticalStackLayout IsVisible="{Binding HasItems, Converter={StaticResource InverseBoolConverter}}"
+                                   VerticalOptions="Center" 
+                                   HorizontalOptions="Center" 
+                                   Spacing="20">
+                    <Label Text="Your cart is empty"
+                           TextColor="{StaticResource TextSecondary}"
+                           FontFamily="PMedium"
+                           FontSize="16"
+                           HorizontalOptions="Center"/>
+
+                    <components:CustomButton Text="Back to Menu"
+                                           Width="200"
+                                           BackgroundColor="{StaticResource LogoRed}"
+                                           TextColor="{StaticResource TextPrimary}"
+                                           CornerRadius="10"
+                                           Command="{Binding NavigateToMenuCommand}"/>
+                </VerticalStackLayout>
+
+                <!-- Cart Items List -->
+                <CollectionView ItemsSource="{Binding OrderItems}"
+                              IsVisible="{Binding HasItems}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <components:OrderItemComponent OrderItem="{Binding .}"/>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </Grid></Grid>
         </ScrollView>
 
         <!-- Order Summary and Button -->
@@ -51,12 +69,15 @@
                 BackgroundColor="Transparent"
                 Padding="20"
                 Margin="0,20,0,0"
-                StrokeThickness="0">
+                StrokeThickness="0"
+                IsVisible="{Binding HasItems}"
+                
+>
             <Border.StrokeShape>
                 <RoundRectangle CornerRadius="12"/>
             </Border.StrokeShape>
 
-            <HorizontalStackLayout  HorizontalOptions="CenterAndExpand" Spacing="30">
+            <HorizontalStackLayout  HorizontalOptions="CenterAndExpand" Spacing="25">
                 <!-- Order Summary -->
                 <VerticalStackLayout  VerticalOptions="Center" HorizontalOptions="CenterAndExpand">
                     <VerticalStackLayout Spacing="5">

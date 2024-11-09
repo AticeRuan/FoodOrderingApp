@@ -2,146 +2,249 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:components="clr-namespace:FoodOrdering.MAUI.Views.Components"
-             xmlns:vm="clr-namespace:FoodOrdering.MAUI.ViewModels"
              x:Class="FoodOrdering.MAUI.Pages.OrderStatusPage"
              Title="Order Status"
              BackgroundColor="{StaticResource BackgroundBrown}">
 
-    <ContentPage.BindingContext>
-        <vm:OrderStatusViewModel />
-    </ContentPage.BindingContext>
+    <Shell.BackButtonBehavior >
+        <BackButtonBehavior IconOverride="back.png" IsVisible="False" />
+    </Shell.BackButtonBehavior>
 
-    <Grid RowDefinitions="Auto,*,Auto" Padding="20">
-        <!-- Header -->
-        <Label Text="Order Status"
-               Grid.Row="0"
-               TextColor="{StaticResource TextPrimary}"
-               FontFamily="PBold"
-               FontSize="30"
-               Margin="0,0,0,20"/>
+    <Shell.TitleView>
+        <FlexLayout AlignItems="Center" JustifyContent="Start">
+            <Label Text="Order Status" FontSize="30" FontFamily="PBold" TextColor="{StaticResource TextPrimary}"/>
+        </FlexLayout>
+    </Shell.TitleView>
+
+    <Grid RowDefinitions="Auto,Auto" Padding="20"  Margin="20" >
 
         <!-- Status Progress -->
-        <Grid Grid.Row="1" RowSpacing="0">
+        <Grid Grid.Row="0" RowSpacing="0" Margin="20,0" HorizontalOptions="Center" Padding="20" >
             <!-- Pending -->
             <VerticalStackLayout Spacing="5">
                 <Grid ColumnDefinitions="Auto,*">
-                    <Border WidthRequest="30" 
-                            HeightRequest="30" 
-                            StrokeThickness="0"
-                            BackgroundColor="{Binding PendingColor}">
+                    <Border WidthRequest="40" 
+                           HeightRequest="40" 
+                           StrokeThickness="0"
+                           BackgroundColor="{StaticResource BackgroundGrey}">
                         <Border.StrokeShape>
-                            <RoundRectangle CornerRadius="15"/>
+                            <RoundRectangle CornerRadius="20"/>
                         </Border.StrokeShape>
-                        <Label Text="✓" 
-                               TextColor="White" 
-                               HorizontalOptions="Center" 
-                               VerticalOptions="Center"
-                               IsVisible="{Binding IsPendingCompleted}"/>
+                        <Border WidthRequest="30"
+                               HeightRequest="30"
+                               StrokeThickness="0"
+                               BackgroundColor="{Binding PendingColor}"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="15"/>
+                            </Border.StrokeShape>
+                            <Label Text="✓" 
+                                   TextColor="{StaticResource BackgroundBrown}" 
+                                   HorizontalOptions="Center" 
+                                   VerticalOptions="Center"
+                                   FontSize="16"
+                                   IsVisible="{Binding IsPendingCompleted}"/>
+                        </Border>
                     </Border>
                     <Label Text="Pending" 
                            Grid.Column="1"
                            TextColor="{Binding PendingColor}"
                            VerticalOptions="Center"
-                           Margin="10,0,0,0"/>
+                           FontSize="20"
+                           FontFamily="PMedium"
+                           Margin="15,0,0,0"/>
                 </Grid>
-                <BoxView HeightRequest="50" 
-                         WidthRequest="2" 
+                <BoxView HeightRequest="60" 
+                         WidthRequest="3" 
+                         Color="{StaticResource BackgroundGrey}"
+                         HorizontalOptions="Start"
+                         Margin="18,0,0,0">
+                    <BoxView.Clip>
+                        <RectangleGeometry Rect="0,0,3,60"/>
+                    </BoxView.Clip>
+                </BoxView>
+                <BoxView HeightRequest="60" 
+                         WidthRequest="3" 
                          Color="{Binding PendingLineColor}"
                          HorizontalOptions="Start"
-                         Margin="14,0,0,0"/>
+                         Margin="18,-60,0,0">
+                    <BoxView.Clip>
+                        <RectangleGeometry Rect="0,0,3,60"/>
+                    </BoxView.Clip>
+                </BoxView>
             </VerticalStackLayout>
 
             <!-- Confirmed -->
-            <VerticalStackLayout Spacing="5" Margin="0,85,0,0">
+            <VerticalStackLayout Spacing="5" Margin="0,105,0,0">
                 <Grid ColumnDefinitions="Auto,*">
-                    <Border WidthRequest="30" 
-                            HeightRequest="30" 
-                            StrokeThickness="0"
-                            BackgroundColor="{Binding ConfirmedColor}">
+                    <Border WidthRequest="40" 
+                           HeightRequest="40" 
+                           StrokeThickness="0"
+                           BackgroundColor="{StaticResource BackgroundGrey}">
                         <Border.StrokeShape>
-                            <RoundRectangle CornerRadius="15"/>
+                            <RoundRectangle CornerRadius="20"/>
                         </Border.StrokeShape>
-                        <Label Text="✓" 
-                               TextColor="White" 
-                               HorizontalOptions="Center" 
-                               VerticalOptions="Center"
-                               IsVisible="{Binding IsConfirmedCompleted}"/>
+                        <Border WidthRequest="30"
+                               HeightRequest="30"
+                               StrokeThickness="0"
+                               BackgroundColor="{Binding ConfirmedColor}"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="15"/>
+                            </Border.StrokeShape>
+                            <Label Text="✓" 
+                                   TextColor="{StaticResource BackgroundBrown}" 
+                                   HorizontalOptions="Center" 
+                                   VerticalOptions="Center"
+                                   FontSize="16"
+                                   IsVisible="{Binding IsConfirmedCompleted}"/>
+                        </Border>
                     </Border>
                     <Label Text="Confirmed" 
                            Grid.Column="1"
                            TextColor="{Binding ConfirmedColor}"
                            VerticalOptions="Center"
-                           Margin="10,0,0,0"/>
+                           FontSize="20"
+                           FontFamily="PMedium"
+                           Margin="15,0,0,0"/>
                 </Grid>
-                <BoxView HeightRequest="50" 
-                         WidthRequest="2" 
+                <BoxView HeightRequest="60" 
+                         WidthRequest="3" 
+                         Color="{StaticResource BackgroundGrey}"
+                         HorizontalOptions="Start"
+                         Margin="18,0,0,0">
+                    <BoxView.Clip>
+                        <RectangleGeometry Rect="0,0,3,60"/>
+                    </BoxView.Clip>
+                </BoxView>
+                <BoxView HeightRequest="60" 
+                         WidthRequest="3" 
                          Color="{Binding ConfirmedLineColor}"
                          HorizontalOptions="Start"
-                         Margin="14,0,0,0"/>
+                         Margin="18,-60,0,0">
+                    <BoxView.Clip>
+                        <RectangleGeometry Rect="0,0,3,60"/>
+                    </BoxView.Clip>
+                </BoxView>
             </VerticalStackLayout>
 
             <!-- Ready -->
-            <VerticalStackLayout Spacing="5" Margin="0,170,0,0">
+            <VerticalStackLayout Spacing="5" Margin="0,210,0,0">
                 <Grid ColumnDefinitions="Auto,*">
-                    <Border WidthRequest="30" 
-                            HeightRequest="30" 
-                            StrokeThickness="0"
-                            BackgroundColor="{Binding ReadyColor}">
+                    <Border WidthRequest="40" 
+                           HeightRequest="40" 
+                           StrokeThickness="0"
+                           BackgroundColor="{StaticResource BackgroundGrey}">
                         <Border.StrokeShape>
-                            <RoundRectangle CornerRadius="15"/>
+                            <RoundRectangle CornerRadius="20"/>
                         </Border.StrokeShape>
-                        <Label Text="✓" 
-                               TextColor="White" 
-                               HorizontalOptions="Center" 
-                               VerticalOptions="Center"
-                               IsVisible="{Binding IsReadyCompleted}"/>
+                        <Border WidthRequest="30"
+                               HeightRequest="30"
+                               StrokeThickness="0"
+                               BackgroundColor="{Binding ReadyColor}"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="15"/>
+                            </Border.StrokeShape>
+                            <Label Text="✓" 
+                                   TextColor="{StaticResource BackgroundBrown}" 
+                                   HorizontalOptions="Center" 
+                                   VerticalOptions="Center"
+                                   FontSize="16"
+                                   IsVisible="{Binding IsReadyCompleted}"/>
+                        </Border>
                     </Border>
                     <Label Text="Ready" 
                            Grid.Column="1"
                            TextColor="{Binding ReadyColor}"
                            VerticalOptions="Center"
-                           Margin="10,0,0,0"/>
+                           FontSize="20"
+                           FontFamily="PMedium"
+                           Margin="15,0,0,0"/>
                 </Grid>
-                <BoxView HeightRequest="50" 
-                         WidthRequest="2" 
+                <BoxView HeightRequest="60" 
+                         WidthRequest="3" 
+                         Color="{StaticResource BackgroundGrey}"
+                         HorizontalOptions="Start"
+                         Margin="18,0,0,0">
+                    <BoxView.Clip>
+                        <RectangleGeometry Rect="0,0,3,60"/>
+                    </BoxView.Clip>
+                </BoxView>
+                <BoxView HeightRequest="60" 
+                         WidthRequest="3" 
                          Color="{Binding ReadyLineColor}"
                          HorizontalOptions="Start"
-                         Margin="14,0,0,0"/>
+                         Margin="18,-60,0,0">
+                    <BoxView.Clip>
+                        <RectangleGeometry Rect="0,0,3,60"/>
+                    </BoxView.Clip>
+                </BoxView>
             </VerticalStackLayout>
 
             <!-- Completed -->
-            <VerticalStackLayout Spacing="5" Margin="0,255,0,0">
+            <VerticalStackLayout Spacing="5" Margin="0,315,0,0">
                 <Grid ColumnDefinitions="Auto,*">
-                    <Border WidthRequest="30" 
-                            HeightRequest="30" 
-                            StrokeThickness="0"
-                            BackgroundColor="{Binding CompletedColor}">
+                    <Border WidthRequest="40" 
+                           HeightRequest="40" 
+                           StrokeThickness="0"
+                           BackgroundColor="{StaticResource BackgroundGrey}">
                         <Border.StrokeShape>
-                            <RoundRectangle CornerRadius="15"/>
+                            <RoundRectangle CornerRadius="20"/>
                         </Border.StrokeShape>
-                        <Label Text="✓" 
-                               TextColor="White" 
-                               HorizontalOptions="Center" 
-                               VerticalOptions="Center"
-                               IsVisible="{Binding IsCompletedCompleted}"/>
+                        <Border WidthRequest="30"
+                               HeightRequest="30"
+                               StrokeThickness="0"
+                               BackgroundColor="{Binding CompletedColor}"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="15"/>
+                            </Border.StrokeShape>
+                            <Label Text="✓" 
+                                   TextColor="{StaticResource BackgroundBrown}" 
+                                   HorizontalOptions="Center" 
+                                   VerticalOptions="Center"
+                                   FontSize="16"
+                                   IsVisible="{Binding IsCompletedCompleted}"/>
+                        </Border>
                     </Border>
                     <Label Text="Completed" 
                            Grid.Column="1"
                            TextColor="{Binding CompletedColor}"
                            VerticalOptions="Center"
-                           Margin="10,0,0,0"/>
+                           FontSize="20"
+                           FontFamily="PMedium"
+                           Margin="15,0,0,0"/>
                 </Grid>
             </VerticalStackLayout>
+       
         </Grid>
-
         <!-- Cancel Button -->
-        <components:CustomButton Grid.Row="2"
-                               Text="Cancel Order"
-                               Width="200"
-                               BackgroundColor="{StaticResource LogoRed}"
-                               TextColor="White"
-                               CornerRadius="10"
-                               Command="{Binding CancelOrderCommand}"
-                               IsVisible="{Binding CanCancelOrder}"/>
+        <components:CustomButton 
+        Text="Cancel Order"
+        Width="200"
+                 Grid.Row="1"
+        BackgroundColor="{StaticResource LogoRed}"
+        TextColor="White"
+        CornerRadius="10"
+        Command="{Binding CancelOrderCommand}"
+        IsVisible="{Binding ShowCancelButton}"/>
+
+        <!-- New Order Button -->
+        <components:CustomButton 
+        Text="New Order"
+            Grid.Row="1"
+        Width="200"
+        BackgroundColor="{StaticResource LogoGold}"
+        TextColor="{StaticResource BackgroundBrown}"
+        CornerRadius="10"
+        Command="{Binding NewOrderCommand}"
+        IsVisible="{Binding ShowNewOrderButton}"/>
+
+
     </Grid>
 </ContentPage>

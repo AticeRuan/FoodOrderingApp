@@ -5,6 +5,7 @@ namespace FoodOrdering.MAUI.Pages;
 
 public partial class CartPage : ContentPage
     {
+    private bool _isNavigating = false;
     public CartPage()
         {
         InitializeComponent();
@@ -19,4 +20,6 @@ public partial class CartPage : ContentPage
             disposable.Dispose();
             }
         }
+
+
     }
