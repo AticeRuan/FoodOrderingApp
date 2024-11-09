@@ -19,7 +19,7 @@
 
     <Shell.TitleView>
         <FlexLayout AlignItems="Center" JustifyContent="Start">
-            <Label Text="My Cart" FontSize="30" FontFamily="PBold" TextColor="{StaticResource TextPrimary}"/>         
+            <Label Text="My Cart" FontSize="30" FontFamily="PBold" TextColor="{StaticResource TextPrimary}"/>        
         </FlexLayout>
     </Shell.TitleView>
 

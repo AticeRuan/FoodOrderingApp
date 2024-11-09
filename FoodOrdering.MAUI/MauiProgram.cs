@@ -2,14 +2,15 @@
 using FoodOrdering.MAUI.Pages;
 using FoodOrdering.MAUI.Services;
 using FoodOrdering.MAUI.ViewModels;
+using FoodOrdering.MAUI.Views.Pages;
 using Microsoft.Extensions.Logging;
 
 namespace FoodOrdering.MAUI
 {
     public static class MauiProgram
-    {
-        public static MauiApp CreateMauiApp()
         {
+        public static MauiApp CreateMauiApp()
+            {
             var builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()
@@ -36,11 +37,14 @@ namespace FoodOrdering.MAUI
 
 
             // Register pages 
+            builder.Services.AddTransient<FoodOrdering.MAUI.Views.Pages.OrderStatusPage>();
             builder.Services.AddTransient<MainPage>();
             builder.Services.AddTransient<MenuPage>();
             builder.Services.AddTransient<CartPage>();
             builder.Services.AddTransient<DeliveryPage>();
             builder.Services.AddTransient<PickUpPage>();
+            builder.Services.AddTransient<FoodOrdering.MAUI.Views.Pages.OrderStatusPage>();
+            builder.Services.AddTransient<OrderStatusViewModel>();
             // Register ViewModels
             builder.Services.AddTransient<MainPageViewModel>();
             builder.Services.AddTransient<PickupPageViewModel>();
@@ -54,6 +58,6 @@ namespace FoodOrdering.MAUI
 #endif
 
             return builder.Build();
+            }
         }
-    }
 }

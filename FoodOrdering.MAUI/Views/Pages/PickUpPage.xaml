@@ -25,9 +25,9 @@
     </Shell.TitleView>
     <ScrollView Margin="0,0,0,20">
     <VerticalStackLayout HorizontalOptions="Center" Padding="30,0,30,0" Spacing="20">
-        <Image Source="logo.png"/>
+        <Image Source="logo.png" WidthRequest="150"/>
         <FlexLayout AlignItems="Center" JustifyContent="SpaceAround">
-            <Image Source="location.png"/>
+            <Image Source="location.png" />
             <Label Text="226 Taharepa Road, Tauhara, Taupō 3330" TextColor="White" FontFamily="PMedium"/>
         </FlexLayout>
 
@@ -37,10 +37,11 @@
             <Border.StrokeShape>
                 <RoundRectangle CornerRadius="12" />
             </Border.StrokeShape>
-            <Grid Margin="15" ColumnDefinitions="*,*"  ColumnSpacing="10">
+            <Grid Margin="15" ColumnDefinitions="*,*"  ColumnSpacing="10" RowDefinitions="*,*" RowSpacing="10">
                     <components:CustomTextInput Placeholder="First Name" Text="{Binding FirstName, Mode=TwoWay}"  />
                     <components:CustomTextInput Placeholder="Last Name" Text="{Binding LastName,Mode=TwoWay}" Grid.Column="1" />
-            </Grid>
+                    <components:CustomTextInput Placeholder="Contact Number" Text="{Binding PhoneNumber, Mode=TwoWay}" Grid.Row="1" Grid.ColumnSpan="2" Width="250" />
+                </Grid>
         </Border>
 
         <Label Text="Pick Up Time" TextColor="White" FontSize="25" HorizontalTextAlignment="Center" FontFamily="PMedium"/>

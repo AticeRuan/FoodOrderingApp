@@ -48,14 +48,14 @@
                 <!-- Customer Info -->
                 <div class="rounded-lg border p-4">
                     <h3 class="text-sm font-medium text-muted-foreground mb-1">Customer</h3>
-                    <p class="font-medium">@order.CustomerName</p>
+                    <p class="font-medium">@order.CustomerName.FullName</p>
                     <p class="text-muted-foreground">@order.CustomerPhone</p>
                 </div>
 
                 <!-- Order Summary -->
                 <div class="rounded-lg border p-4">
                     <h3 class="text-sm font-medium text-muted-foreground mb-1">Summary</h3>
-                    <p class="font-medium">@order.Items.Count items</p>
+                    <p class="font-medium">@order.Items.Sum(item => item.Quantity) items</p>
                     <p class="text-xl font-bold">@order.TotalAmount.ToString("C")</p>
                 </div>
             </div>

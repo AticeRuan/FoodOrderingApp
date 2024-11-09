@@ -63,8 +63,12 @@ namespace FoodOrdering.Web
                 .AddInteractiveServerRenderMode()
                 .AddInteractiveWebAssemblyRenderMode();
 
-            app.MapGroup("/api")
-                .MapMenuApi();
+            var apiGroup = app.MapGroup("/api");
+            apiGroup.MapMenuApi();   
+            apiGroup.MapOrderApi();
+           
+
+
 
             app.Run();
         }

@@ -31,18 +31,34 @@ namespace FoodOrdering.Web.Api
             {
                 try
                     {
-                    // Use the service to create the order
+                    Console.WriteLine("Receiving order creation request...");
                     var newOrder = await service.CreateOrderAsync(order);
-                    if (newOrder == null)
-                        return Results.BadRequest("Failed to create order");
 
-                    return Results.Created($"/api/orders/{newOrder.Id}", newOrder);
+                    if (newOrder != null)
+                        {
+                        Console.WriteLine($"Order created successfully with ID: {newOrder.Id}");
+                        // Clean up the response object to prevent serialization issues
+                        foreach (var item in newOrder.Items)
+                            {
+                            item.Order = null; // Remove circular reference
+                            if (item.MenuItem != null)
+                                {
+                                item.MenuItemId = item.MenuItem.Id;
+                                item.MenuItem = null; // Remove complex navigation property
+                                }
+                            }
+
+                        return Results.Ok(newOrder); // Change to Ok instead of Created
+                        }
+
+                    Console.WriteLine("Order creation failed - returned null");
+                    return Results.BadRequest("Failed to create order");
                     }
                 catch (Exception ex)
                     {
-                    Console.WriteLine($"Error creating order: {ex.Message}");
+                    Console.WriteLine($"Error in order creation endpoint: {ex.Message}");
                     Console.WriteLine($"Stack trace: {ex.StackTrace}");
-                    return Results.BadRequest(ex.Message);
+                    return Results.BadRequest(new { error = ex.Message });
                     }
             });
 

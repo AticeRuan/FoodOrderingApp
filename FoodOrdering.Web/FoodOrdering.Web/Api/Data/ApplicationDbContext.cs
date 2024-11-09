@@ -68,19 +68,19 @@ namespace FoodOrdering.Web.Api.Data
                 entity.Property(e => e.UnitPrice).HasColumnType("decimal(18,2)");
                 entity.Property(e => e.Quantity).IsRequired();
 
-                entity.HasOne(e => e.MenuItem)
-                    .WithMany()
-                    .HasForeignKey(e => e.MenuItemId)
-                    .OnDelete(DeleteBehavior.Restrict);
-
                 entity.OwnsMany(e => e.Extras, extra =>
                 {
                     extra.WithOwner().HasForeignKey(e => e.OrderItemId);
-                    extra.Property(x => x.Name).IsRequired();
+                    extra.Property(x => x.Name).IsRequired();  // Keep Name required when an extra exists
                     extra.Property(x => x.UnitPrice).HasColumnType("decimal(18,2)");
                     extra.Property(x => x.Quantity).IsRequired();
                     extra.HasKey(e => e.Id);
                 });
+
+                // Make sure Extras collection exists but can be empty
+                entity.Navigation(e => e.Extras)
+                    .AutoInclude()
+                    .UsePropertyAccessMode(PropertyAccessMode.Property);
 
                 entity.Property(e => e.Spice)
                     .HasConversion(

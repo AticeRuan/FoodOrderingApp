@@ -79,50 +79,69 @@ namespace FoodOrdering.Web.Services
 
         public async Task<Order?> CreateOrderAsync(Order order)
             {
+            Console.WriteLine("=== Creating Order - Debug Info ===");
             try
                 {
-                // Set required fields
-                order.OrderDate = DateTime.UtcNow;
-                order.Status = OrderStatus.Pending;
-
-                // Ensure the customer details are properly set
-                order.SetCustomerDetails(order.CustomerName, order.CustomerAddress);
-
-                // Calculate total amount
-                order.UpdateTotalAmount();
-
-                // Add the order to the context
-                context.Orders.Add(order);
-
-                // For each order item
-                foreach (var item in order.Items)
+                // Step 1: Validate and prepare menu items
+                foreach (var item in order.Items.ToList())
                     {
-                    // Set the order relationship
-                    item.Order = order;
-
-                    // If we have the menu item, verify and set the price
-                    if (item.MenuItem != null)
+                    Console.WriteLine($"Processing item: MenuItemId = {item.MenuItemId}");
+                    var menuItem = await context.MenuItems.FindAsync(item.MenuItemId);
+                    if (menuItem == null)
                         {
-                        var menuItem = await context.MenuItems.FindAsync(item.MenuItemId);
-                        if (menuItem != null)
-                            {
-                            item.UnitPrice = menuItem.Price;
-                        
-                            }
+                        throw new InvalidOperationException($"Menu item not found: {item.MenuItemId}");
                         }
+
+                    // Create new order item without circular references
+                    var newItem = new OrderItem
+                        {
+                        MenuItemId = item.MenuItemId,
+                        MenuItem = menuItem,
+                        Quantity = item.Quantity,
+                        UnitPrice = menuItem.Price,
+                        
+                        Extras = new List<Extra>(), // Initialize empty extras
+                        Spice = item.Spice ?? new List<string>()
+                        };
+
+                    // Replace the original item with the new one
+                    item.MenuItem = null; // Remove circular reference
+                    item.UnitPrice = newItem.UnitPrice;                  
                     }
 
-                await context.SaveChangesAsync();
+                // Step 2: Initialize empty collections and properties
+                order.OrderDate = DateTime.UtcNow;
+                order.Status = OrderStatus.Pending;
+                order.CustomerName ??= new Name();
+                order.CustomerAddress ??= new Address { Suburb = "Taupo" };
+                order.CustomerPhone ??= string.Empty;
 
-                // Log successful order creation
-                Console.WriteLine($"Order created successfully. Order ID: {order.Id}");
+                // Step 3: Set derived properties
+                order.SetCustomerDetails(order.CustomerName, order.CustomerAddress);
+                order.UpdateTotalAmount();
+
+                // Step 4: Create order in database
+                await context.Orders.AddAsync(order);
+
+                Console.WriteLine("Attempting to save order to database");
+                await context.SaveChangesAsync();
+                Console.WriteLine($"Order saved successfully with ID: {order.Id}");
+
                 return order;
+                }
+            catch (DbUpdateException dbEx)
+                {
+                Console.WriteLine("Database update error:");
+                Console.WriteLine(dbEx.Message);
+                Console.WriteLine(dbEx.InnerException?.Message);
+                throw;
                 }
             catch (Exception ex)
                 {
-                Console.WriteLine($"Error in CreateOrderAsync: {ex.Message}");
-                Console.WriteLine($"Stack trace: {ex.StackTrace}");
-                throw; // Rethrow to let the endpoint handle it
+                Console.WriteLine("General error:");
+                Console.WriteLine(ex.Message);
+                Console.WriteLine(ex.StackTrace);
+                throw;
                 }
             }
 

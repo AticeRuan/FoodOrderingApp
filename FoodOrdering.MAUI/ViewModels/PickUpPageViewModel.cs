@@ -24,6 +24,7 @@ namespace FoodOrdering.MAUI.ViewModels
             TimeViewModel = new TimeSlotViewModel();
             firstName = _orderService.CurrentOrder.CustomerName.FirstName ?? string.Empty;
             lastName = _orderService.CurrentOrder.CustomerName.LastName ?? string.Empty;
+            PhoneNumber = _orderService.CurrentOrder.CustomerPhone ?? string.Empty;
             _selectedDateSlot = new DateSlot { Id = 0, Date = DateTime.Today };
             TimeViewModel.LoadTimeSlots(SelectedDateSlot.Date);
 
@@ -56,6 +57,8 @@ namespace FoodOrdering.MAUI.ViewModels
 
         [ObservableProperty]
         private string lastName;
+
+        [ObservableProperty] private string phoneNumber;
 
         public DateSlot SelectedDateSlot
             {
@@ -106,6 +109,15 @@ namespace FoodOrdering.MAUI.ViewModels
                 return;
                 }
 
+            if (string.IsNullOrWhiteSpace(PhoneNumber))
+                {
+                if (Application.Current?.MainPage != null)
+                    {
+                    await Application.Current.MainPage.DisplayAlert("Input Error", "Phone number is required.", "OK");
+                    }
+                return;
+                }
+
             if (SelectedDateSlot == null)
                 {
                 if (Application.Current?.MainPage != null)
@@ -125,7 +137,7 @@ namespace FoodOrdering.MAUI.ViewModels
                 }
 
           
-            string message = $"First Name: {FirstName}\nLast Name: {LastName}\n" +
+            string message = $"First Name: {FirstName}\nLast Name: {LastName}\nPhone: {PhoneNumber}\n" +
                              $"Pickup Date: {SelectedDateSlot.Date:dddd, MMMM d, yyyy}\n" +
                              $"Pickup Time: {SelectedTimeSlot.StartTime:hh:mm tt}";
 
@@ -143,6 +155,7 @@ namespace FoodOrdering.MAUI.ViewModels
                     {
                   
                     _orderService.SetName(FirstName, LastName);
+                    _orderService.CurrentOrder.CustomerPhone = PhoneNumber;
                     _orderService.SetPickupOrDelivery(
                         isDelivery: false,
                         scheduledDateTime: SelectedDateSlot.Date + SelectedTimeSlot.StartTime.TimeOfDay);

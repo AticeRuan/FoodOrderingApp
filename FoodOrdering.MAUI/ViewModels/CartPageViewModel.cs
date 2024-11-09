@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Text.Json;
+using System.Diagnostics;
 
 namespace FoodOrdering.MAUI.ViewModels
     {
@@ -89,11 +90,10 @@ namespace FoodOrdering.MAUI.ViewModels
             // Validate name
             if (order.CustomerName == null ||
                 string.IsNullOrWhiteSpace(order.CustomerName.FirstName) ||
-                string.IsNullOrWhiteSpace(order.CustomerName.LastName) ||
-                order.CustomerName.FirstName.Length < 2 ||
-                order.CustomerName.LastName.Length < 2)
+                string.IsNullOrWhiteSpace(order.CustomerName.LastName) )
+          
                 {
-                validationMessage = "Please enter valid first and last names (minimum 2 characters each)";
+                validationMessage = "Please enter valid first and last names";
                 return false;
                 }
 
@@ -144,33 +144,44 @@ namespace FoodOrdering.MAUI.ViewModels
                 {
                 order.CustomerAddress = new Address
                     {
-                    Unit = null,
-                    StreetNumber = null,
-                    StreetName = null,
-                    Suburb = "Taupo" // Keep only the city for pickup orders
+                    Unit = "0",
+                    StreetNumber = "236",
+                    StreetName = "Tahapepa Road",
+                    Suburb = "Taupo"
                     };
-                order.CustomerPhone = "N/A";
                 }
 
-            // Set customer details (this will handle FullName and FullAddress properly)
+            // Set customer details
             order.SetCustomerDetails(order.CustomerName, order.CustomerAddress);
 
             // Update totals
             order.UpdateTotalAmount();
 
-            // Update order items
+            // Process order items
             foreach (var item in order.Items)
                 {
-                item.Order = null; // Remove circular reference
+                // Initialize or clear Extras if null
+                item.Extras ??= new List<Extra>();
+
+                // Remove any empty extras
+                item.Extras = item.Extras
+                    .Where(e => !string.IsNullOrEmpty(e.Name) && e.Quantity > 0)
+                    .ToList();
+
+                // Initialize Spice list if null
+                item.Spice ??= new List<string>();
+
+                // Remove circular reference
+                item.Order = null;
+
                 if (item.MenuItem != null)
                     {
                     item.MenuItemId = item.MenuItem.Id;
-                    item.UnitPrice = item.MenuItem.Price;
-                
+                    item.UnitPrice = item.MenuItem.Price;            
+                   
                     }
                 }
             }
-
         [RelayCommand]
         private async Task PlaceOrderAsync()
             {
@@ -180,52 +191,33 @@ namespace FoodOrdering.MAUI.ViewModels
                 {
                 IsOrdering = true;
 
-                // Validate order
-                if (!ValidateOrder(out string validationMessage))
-                    {
-                    if (Application.Current?.MainPage != null)
-                        {
-                        await Application.Current.MainPage.DisplayAlert(
-                            "Invalid Order",
-                            validationMessage,
-                            "OK");
-                        }
-                    return;
-                    }
-
                 // Prepare order for submission
                 PrepareOrderForSubmission(_orderService.CurrentOrder);
-
-                // Log order details
-                Console.WriteLine("\n=== Order Details Before Submission ===");
-                var orderJson = JsonSerializer.Serialize(_orderService.CurrentOrder,
-                    new JsonSerializerOptions { WriteIndented = true });
-                Console.WriteLine(orderJson);
 
                 // Submit order
                 var newOrder = await _apiService.CreateOrderAsync(_orderService.CurrentOrder);
 
-                if (newOrder != null)
-                    {
-                    if (Application.Current?.MainPage != null)
-                        {
-                        await Application.Current.MainPage.DisplayAlert(
-                            "Success",
-                            "Your order has been placed successfully!",
-                            "OK");
-                        }
+                _orderService.CurrentOrder.Id = newOrder.Id;
 
-                    _orderService.ResetOrder();
-                    await Shell.Current.GoToAsync("//MainPage");
+                // If we get here, either the order was successful or we got a 500 but know the order went through
+                if (Application.Current?.MainPage != null)
+                    {
+                    await Application.Current.MainPage.DisplayAlert(
+                        "Success",
+                        "Your order has been placed successfully!",
+                        "OK");
                     }
+
+                _orderService.ResetOrder();
+                await Shell.Current.GoToAsync($"{nameof(FoodOrdering.MAUI.Pages.OrderStatusPage)}?orderId={newOrder.Id}");
                 }
             catch (HttpRequestException ex)
                 {
-                Console.WriteLine($"\n=== HTTP Error Details ===");
-                Console.WriteLine($"Status Code: {ex.StatusCode}");
-                Console.WriteLine($"Message: {ex.Message}");
+                Debug.WriteLine($"\n=== HTTP Error Details ===");
+                Debug.WriteLine($"Status Code: {ex.StatusCode}");
+                Debug.WriteLine($"Message: {ex.Message}");
 
-                var errorMessage = "There was a problem connecting to the server. ";
+                var errorMessage = "There was a problem placing your order. ";
                 if (ex.StatusCode == System.Net.HttpStatusCode.BadRequest)
                     {
                     errorMessage = "The order information is incomplete. Please check all required fields.";
@@ -241,10 +233,10 @@ namespace FoodOrdering.MAUI.ViewModels
                 }
             catch (Exception ex)
                 {
-                Console.WriteLine($"\n=== Error Details ===");
-                Console.WriteLine($"Error Type: {ex.GetType().Name}");
-                Console.WriteLine($"Message: {ex.Message}");
-                Console.WriteLine($"Stack Trace: {ex.StackTrace}");
+                Debug.WriteLine($"\n=== Error Details ===");
+                Debug.WriteLine($"Error Type: {ex.GetType().Name}");
+                Debug.WriteLine($"Message: {ex.Message}");
+                Debug.WriteLine($"Stack Trace: {ex.StackTrace}");
 
                 if (Application.Current?.MainPage != null)
                     {
