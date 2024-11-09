@@ -11,17 +11,17 @@ public partial class MenuItemComponent : ContentView
     public MenuItemComponent()
         {
         InitializeComponent();
-        Console.WriteLine("MenuItemComponent initialized");
+    
 
         try
             {
             _orderService = Application.Current?.Handler?.MauiContext?.Services.GetService<OrderService>()
                            ?? throw new InvalidOperationException("OrderService not found");
-            Console.WriteLine("OrderService successfully injected");
+          
             }
         catch (Exception ex)
             {
-            Console.WriteLine($"Failed to get OrderService: {ex.Message}");
+          
             }
 
         BindingContext = this;
@@ -63,11 +63,11 @@ public partial class MenuItemComponent : ContentView
     [RelayCommand]
     private void AddToOrder()
         {
-        Console.WriteLine("AddToOrder method called");
+  
 
         if (MenuItem == null)
             {
-            Console.WriteLine("MenuItem is null, cannot add to order");
+         
             return;
             }
 
@@ -82,8 +82,8 @@ public partial class MenuItemComponent : ContentView
                 };
 
             _orderService.AddOrderItem(orderItem);
-            Console.WriteLine($"Successfully added item to cart: {MenuItem.Name}, Price: ${MenuItem.Price}");
-            Console.WriteLine($"Current cart total items: {_orderService.CurrentOrder.Items.Count}");
+          
+          
             }
         catch (Exception ex)
             {

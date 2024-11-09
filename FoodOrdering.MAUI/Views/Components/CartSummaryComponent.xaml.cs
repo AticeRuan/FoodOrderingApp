@@ -18,12 +18,11 @@ public partial class CartSummaryComponent : ContentView, IDisposable
             {
             _orderService = Application.Current?.Handler?.MauiContext?.Services.GetService<OrderService>()
                            ?? throw new InvalidOperationException("OrderService not found");
-            Console.WriteLine("OrderService successfully injected in CartSummaryComponent");
+         
 
-            // Subscribe to PropertyChanged event
             _orderService.PropertyChanged += OrderService_PropertyChanged;
 
-            // Initialize values
+   
             UpdateCartSummary();
             }
         catch (Exception ex)
@@ -52,11 +51,11 @@ public partial class CartSummaryComponent : ContentView, IDisposable
                 try
                     {
                     UpdateCartSummary();
-                    Console.WriteLine($"Cart updated: Items={TotalItems}, Price=${TotalPrice}");
+        
                     }
                 catch (Exception ex)
                     {
-                    Console.WriteLine($"Error updating cart summary: {ex.Message}");
+              
                     }
             });
             }
@@ -72,7 +71,7 @@ public partial class CartSummaryComponent : ContentView, IDisposable
         TotalPrice = order.Items.Sum(item => item.TotalPrice);
         HasItems = TotalItems > 0;
 
-        Console.WriteLine($"UpdateCartSummary called: Items={TotalItems}, Price=${TotalPrice}, Visible={HasItems}");
+
         }
 
     private int _totalItems;
@@ -113,7 +112,7 @@ public partial class CartSummaryComponent : ContentView, IDisposable
                 {
                 _hasItems = value;
                 OnPropertyChanged(nameof(HasItems));
-                Console.WriteLine($"HasItems changed to: {value}");
+              
                 }
             }
         }
@@ -133,7 +132,7 @@ public partial class CartSummaryComponent : ContentView, IDisposable
         if (_orderService is INotifyPropertyChanged notifyPropertyChanged)
             {
             notifyPropertyChanged.PropertyChanged -= OrderService_PropertyChanged;
-            Console.WriteLine("Unsubscribed from OrderService changes");
+        
             }
         }
     }

@@ -32,7 +32,7 @@ namespace FoodOrdering.MAUI.Services
 
 
 
-            // Use different URLs based on platform when debugging
+          
             var baseUrl = DeviceInfo.Platform == DevicePlatform.Android
                 ? "https://10.0.2.2:7235"  // Android Emulator
                 : "https://localhost:7235"; // Windows/iOS/MacCatalyst
@@ -44,7 +44,7 @@ namespace FoodOrdering.MAUI.Services
         _httpClient.BaseAddress = new Uri("https://your-production-api-url.com");
 #endif
 
-            // Add accept header
+    
             _httpClient.DefaultRequestHeaders.Accept.Clear();
             _httpClient.DefaultRequestHeaders.Accept.Add(
                 new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
@@ -65,10 +65,9 @@ namespace FoodOrdering.MAUI.Services
                 Debug.WriteLine("Fetching menu items...");
                 var response = await _httpClient.GetAsync("/api/menu");
 
-                // Log the response
+            
                 var responseContent = await response.Content.ReadAsStringAsync();
-                Debug.WriteLine($"Response status: {response.StatusCode}");
-                Debug.WriteLine($"Response content: {responseContent}");
+            
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -76,9 +75,9 @@ namespace FoodOrdering.MAUI.Services
                     return [];
                 }
 
-                // Try to deserialize the response
+               
                 var items = await response.Content.ReadFromJsonAsync<List<FoodMenuItem>>();
-                Debug.WriteLine($"Successfully deserialized {items?.Count ?? 0} items");
+             
                 return items ?? [];
             }
             catch (Exception ex)
@@ -134,10 +133,9 @@ namespace FoodOrdering.MAUI.Services
                 Debug.WriteLine($"Fetching order with id: {id}");
                 var response = await _httpClient.GetAsync($"/api/orders/{id}");
 
-                // Log the raw response for debugging
+               
                 var responseContent = await response.Content.ReadAsStringAsync();
-                Debug.WriteLine($"Response status: {response.StatusCode}");
-                Debug.WriteLine($"Response content: {responseContent}");
+          
 
                 if (!response.IsSuccessStatusCode)
                     {
@@ -145,7 +143,6 @@ namespace FoodOrdering.MAUI.Services
                     return null;
                     }
 
-                // Ensure we're getting JSON content
                 if (response.Content.Headers.ContentType?.MediaType != "application/json")
                     {
                     Debug.WriteLine("Error: Response is not JSON");
@@ -194,21 +191,18 @@ namespace FoodOrdering.MAUI.Services
                     catch (JsonException ex)
                         {
                         Debug.WriteLine($"Error deserializing response: {ex.Message}");
-                        // If we can't deserialize the response but the status was success,
-                        // return the original order
+                    
                         return order;
                         }
                     }
 
                 if (response.StatusCode == System.Net.HttpStatusCode.InternalServerError)
                     {
-                    Debug.WriteLine("Server returned 500 - but order might have been created");
-                    // Since we know the order is often created successfully despite the 500,
-                    // we can return the original order
+                         
                     return order;
                     }
 
-                // For other error status codes, throw an exception
+ 
                 response.EnsureSuccessStatusCode();
                 return order;
                 }
@@ -218,8 +212,6 @@ namespace FoodOrdering.MAUI.Services
                 Debug.WriteLine($"Status Code: {ex.StatusCode}");
                 Debug.WriteLine($"Message: {ex.Message}");
 
-                // If it's a 500 error and we know orders often succeed despite this,
-                // we can return the original order instead of throwing
                 if (ex.StatusCode == System.Net.HttpStatusCode.InternalServerError)
                     {
                     Debug.WriteLine("Returning original order despite 500 error");

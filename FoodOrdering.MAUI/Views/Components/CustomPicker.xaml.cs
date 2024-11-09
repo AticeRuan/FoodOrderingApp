@@ -11,7 +11,7 @@ public partial class CustomPicker : ContentView
         InitializeComponent();
         }
 
-    // Bindable property for Placeholder
+
     public static readonly BindableProperty PlaceholderProperty = BindableProperty.Create(
         nameof(Placeholder),
         typeof(string),
@@ -24,7 +24,7 @@ public partial class CustomPicker : ContentView
         set => SetValue(PlaceholderProperty, value);
         }
 
-    // Bindable property for Width
+
     public new static readonly BindableProperty WidthProperty = BindableProperty.Create(
         nameof(Width),
         typeof(double),
@@ -37,7 +37,7 @@ public partial class CustomPicker : ContentView
         set => SetValue(WidthProperty, value);
         }
 
-    // Bindable property for ItemsSource
+
     public static readonly BindableProperty ItemsSourceProperty = BindableProperty.Create(
         nameof(ItemsSource),
         typeof(IList),
@@ -50,7 +50,7 @@ public partial class CustomPicker : ContentView
         set => SetValue(ItemsSourceProperty, value);
         }
 
-    // Bindable property for SelectedItem
+
     public static readonly BindableProperty SelectedItemProperty = BindableProperty.Create(
         nameof(SelectedItem),
         typeof(object),
@@ -65,10 +65,10 @@ public partial class CustomPicker : ContentView
         set => SetValue(SelectedItemProperty, value);
         }
 
-    // Event to pass selected option to the parent component
+
     public event EventHandler<object>? SelectedItemChanged;
 
-    // Bindable property for IsForDate
+
     public static readonly BindableProperty IsForDateProperty = BindableProperty.Create(
         nameof(IsForDate),
         typeof(bool),
@@ -82,7 +82,7 @@ public partial class CustomPicker : ContentView
         set => SetValue(IsForDateProperty, value);
         }
 
-    // Update ItemDisplayBinding based on IsForDate property
+
     private static void OnIsForDateChanged(BindableObject bindable, object oldValue, object newValue)
         {
         var picker = (CustomPicker)bindable;
@@ -101,23 +101,23 @@ public partial class CustomPicker : ContentView
             }
         }
 
-    // Handle SelectedIndexChanged to update SelectedItem and raise event
+
     private void OnSelectedIndexChanged(object sender, EventArgs e)
         {
         if (sender is Picker picker)
             {
-            SelectedItem = picker.SelectedItem;  // Set the SelectedItem property
-            SelectedItemChanged?.Invoke(this, picker.SelectedItem);  // Raise custom event
+            SelectedItem = picker.SelectedItem; 
+            SelectedItemChanged?.Invoke(this, picker.SelectedItem);  
             }
         }
 
-    // Update the Picker control's selected item when SelectedItem changes
+
     private static void OnSelectedItemChanged(BindableObject bindable, object oldValue, object newValue)
         {
         var customPicker = (CustomPicker)bindable;
         if (customPicker.PickerControl.SelectedItem != newValue)
             {
-            customPicker.PickerControl.SelectedItem = newValue;  // Set the Picker control’s selected item
+            customPicker.PickerControl.SelectedItem = newValue;  
             }
         }
     }

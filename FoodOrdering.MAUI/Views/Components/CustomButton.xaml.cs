@@ -14,12 +14,12 @@ namespace FoodOrdering.MAUI.Views.Components
             UpdateCornerShape();
             }
 
-        // Public Clicked event for external handling
+    
         public event EventHandler? Clicked;
 
        
 
-        // Bindable property for Command
+
         public static readonly BindableProperty CommandProperty = BindableProperty.Create(
             nameof(Command),
             typeof(ICommand),
@@ -31,7 +31,7 @@ namespace FoodOrdering.MAUI.Views.Components
             get => (ICommand?)GetValue(CommandProperty);
             set => SetValue(CommandProperty, value);
             }
-        // Bindable property for CommandParameter
+
         public static readonly BindableProperty CommandParameterProperty = BindableProperty.Create(
             nameof(CommandParameter),
             typeof(object),
@@ -44,7 +44,7 @@ namespace FoodOrdering.MAUI.Views.Components
             set => SetValue(CommandParameterProperty, value);
             }
 
-        // Method to handle tap event
+
         private void OnButtonTapped(object sender, EventArgs e)
             {
             // Invoke the Clicked event for external subscribers
@@ -53,7 +53,7 @@ namespace FoodOrdering.MAUI.Views.Components
             // Execute the command if it's set and can execute
             if (Command != null && Command.CanExecute(CommandParameter))
                 {
-                Console.WriteLine("Executing command");
+         
                 Command.Execute(CommandParameter);
                 }
             else

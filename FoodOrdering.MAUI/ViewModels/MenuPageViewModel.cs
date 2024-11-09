@@ -90,12 +90,12 @@ public partial class MenuPageViewModel : ObservableObject
             IsBusy = true;
             CategoryGroups.Clear();
 
-            // Fetch menu items from API
+   
             var menuItems = await _apiService.GetMenuItemsAsync();
 
        
 
-            // Group items by category
+   
             var groupedItems = menuItems
                 .GroupBy(item => item.Category)
                 .Select(group => new KeyValuePair<string, List<FoodMenuItem>>(
@@ -139,7 +139,7 @@ public partial class MenuPageViewModel : ObservableObject
         {
         if (_menuItemsCollection == null || !_categoryMetrics.Any()) return;
 
-        // Find the category that contains the current scroll position
+      
         var visibleCategory = _categoryMetrics
             .Where(kvp => scrollY >= kvp.Value.StartOffset)
             .OrderByDescending(kvp => kvp.Value.StartOffset)
@@ -157,7 +157,7 @@ public partial class MenuPageViewModel : ObservableObject
 
         if (_categoryMetrics.TryGetValue(category, out var metrics))
             {
-            // Add a small offset to ensure the category header is visible
+
             var targetPosition = metrics.StartOffset;
             await _scrollView.ScrollToAsync(0, targetPosition, true);
             }

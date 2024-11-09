@@ -35,14 +35,14 @@ namespace FoodOrdering.MAUI.ViewModels
                 var scheduledDate = _orderService.CurrentOrder.ScheduledDateTime.Date;
                 var scheduledTime = _orderService.CurrentOrder.ScheduledDateTime;
 
-                // Update date selection if within available range
+         
                 var matchingDate = DateViewModel.DateSlots.FirstOrDefault(d => d.Date.Date == scheduledDate);
                 if (matchingDate != null)
                     {
                     SelectedDateSlot = matchingDate;
                     }
 
-                // Update time selection if available
+       
                 TimeViewModel.LoadTimeSlots(SelectedDateSlot.Date);
                 var matchingTime = TimeViewModel.TimeSlots.FirstOrDefault(t =>
                     t.StartTime.Hour == scheduledTime.Hour &&

@@ -17,7 +17,7 @@ public partial class OrderDetailsComponent : ContentView
                        ?? throw new InvalidOperationException("OrderService not found");
         BindingContext = this;
 
-        // Subscribe to order changes
+  
         if (_orderService is INotifyPropertyChanged notifyPropertyChanged)
             {
             notifyPropertyChanged.PropertyChanged += OrderService_PropertyChanged;
@@ -82,13 +82,13 @@ public partial class OrderDetailsComponent : ContentView
 
    
 
-        // Set order type text
+
         OrderTypeText = order.IsDelivery ? "Delivery • " : "Pick Up • ";
 
-        // Set scheduled time text with bullet point
+
         ScheduledTimeText = $"{order.ScheduledDateTime:d MMM, h:mm tt}";
 
-        // Set address text without trailing bullet point
+
         AddressText = order.IsDelivery
             ? $" {(order.CustomerAddress.Unit != string.Empty ? $"Unit {order.CustomerAddress.Unit}, " : "")}{order.CustomerAddress.StreetNumber}, {order.CustomerAddress.StreetName}, {order.CustomerAddress.Suburb}, Taupō"
 
@@ -111,10 +111,10 @@ public partial class OrderDetailsComponent : ContentView
             }
         catch (Exception ex)
             {
-            // Log the error if needed
+       
             System.Diagnostics.Debug.WriteLine($"Navigation error: {ex.Message}");
 
-            // Show an alert to the user
+   
             if (Application.Current?.MainPage != null)
                 {
                 await Application.Current.MainPage.DisplayAlert(

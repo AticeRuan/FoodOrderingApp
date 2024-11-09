@@ -59,13 +59,13 @@ namespace FoodOrdering.MAUI.ViewModels
 
        
 
-            // Initialize timer
+     
             _refreshTimer = new System.Timers.Timer(10000); // 10 seconds
             _refreshTimer.Elapsed += RefreshTimer_Elapsed;
             _refreshTimer.AutoReset = true;
             _refreshTimer.Start();
 
-            // Initial fetch
+      
             _ = RefreshOrderStatus();
             }
 
@@ -131,10 +131,10 @@ namespace FoodOrdering.MAUI.ViewModels
             {
             try
                 {
-                // Reset the order service for a new order
+          
                 _orderService.ResetOrder();
 
-                // Navigate back to the main page
+    
                 await Shell.Current.GoToAsync("//MainPage");
                 }
             catch (Exception ex)

@@ -14,7 +14,7 @@ namespace FoodOrdering.MAUI.Services
     {
     public class OrderService
         {
-        // The main Order instance to hold all details
+
         public Order _currentOrder { get; private set; } = new Order();
         public event PropertyChangedEventHandler? PropertyChanged;
         public Order CurrentOrder
@@ -49,7 +49,7 @@ namespace FoodOrdering.MAUI.Services
             NotifyPropertyChanged(nameof(CurrentOrder));
             }
 
-        // Additional methods to set individual properties if needed
+
         public void SetName(string firstName, string lastName)
             {
             CurrentOrder.CustomerName.FirstName = firstName;

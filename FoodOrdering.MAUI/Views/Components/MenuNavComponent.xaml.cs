@@ -56,13 +56,13 @@ public partial class MenuNavComponent : ContentView
 
         UpdateSelectedCategory(category);
 
-        // Find the index of the selected category
+   
         var index = Categories.IndexOf(categoryItem);
         if (index >= 0)
             {
-            // Calculate approximate scroll position
-            var itemWidth = 100; // Approximate width of each category item
-            var spacing = 10; // Spacing between items
+          
+            var itemWidth = 100; 
+            var spacing = 10;
             var totalWidth = NavScrollView.Width;
             var scrollPosition = (itemWidth + spacing) * index - (totalWidth / 2) + (itemWidth / 2);
 

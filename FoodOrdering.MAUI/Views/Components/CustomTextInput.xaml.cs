@@ -46,7 +46,7 @@ public partial class CustomTextInput : ContentView
         set => SetValue(PlaceholderProperty, value);
         }
 
-    // Bindable property for WidthRequest
+   
     public new static readonly BindableProperty WidthProperty = BindableProperty.Create(
         nameof(Width),
         typeof(double),
@@ -59,16 +59,15 @@ public partial class CustomTextInput : ContentView
         set => SetValue(WidthProperty, value);
         }
 
-    // Event to pass input back to the parent
+
     public event EventHandler<string>? TextChangedEvent;
 
-    // Handle TextChanged to raise the event
+
     private void OnTextChanged(object sender, TextChangedEventArgs e)
         {
-        // Update the bindable Text property
         Text = e.NewTextValue;
 
-        // Trigger the custom event for the parent component
+   
         TextChangedEvent?.Invoke(this, e.NewTextValue);
         }
 

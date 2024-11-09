@@ -44,14 +44,14 @@ namespace FoodOrdering.MAUI.ViewModels
                 var scheduledDate = _orderService.CurrentOrder.ScheduledDateTime.Date;
                 var scheduledTime = _orderService.CurrentOrder.ScheduledDateTime;
 
-                // Update date selection if within available range
+                
                 var matchingDate = DateViewModel.DateSlots.FirstOrDefault(d => d.Date.Date == scheduledDate);
                 if (matchingDate != null)
                     {
                     SelectedDateSlot = matchingDate;
                     }
 
-                // Update time selection if available
+           
                 TimeViewModel.LoadTimeSlots(SelectedDateSlot.Date);
                 var matchingTime = TimeViewModel.TimeSlots.FirstOrDefault(t =>
                     t.StartTime.Hour == scheduledTime.Hour &&
@@ -62,7 +62,6 @@ namespace FoodOrdering.MAUI.ViewModels
                     }
                 }
 
-            // Subscribe to DateViewModel changes
             DateViewModel.PropertyChanged += (s, e) =>
             {
                 if (e.PropertyName == nameof(DateViewModel.SelectedDateSlot))
@@ -72,7 +71,7 @@ namespace FoodOrdering.MAUI.ViewModels
                     }
             };
 
-            // Subscribe to TimeViewModel changes
+
             TimeViewModel.PropertyChanged += (s, e) =>
             {
                 if (e.PropertyName == nameof(TimeViewModel.SelectedTimeSlot))
@@ -119,13 +118,13 @@ namespace FoodOrdering.MAUI.ViewModels
                 return;
                 }
 
-            // Create confirmation message
+        
             string message = $"First Name: {FirstName}\nLast Name: {LastName}\nPhone: {PhoneNumber}\n" +
                              $"Address: {UnitNumber} {StreetNumber} {StreetName}, {Suburb}\n" +
                              $"Delivery Date: {SelectedDateSlot.Date:dddd, MMMM d, yyyy}\n" +
                              $"Delivery Time: {SelectedTimeSlot.StartTime:hh:mm tt}";
 
-            // Confirm order details
+      
             bool confirm = false;
             if (Application.Current?.MainPage != null)
                 {
@@ -135,7 +134,7 @@ namespace FoodOrdering.MAUI.ViewModels
 
                 if (confirm)
                 {
-                // Set details in OrderService
+              
                 var address = new Address
                     {
                     Unit = UnitNumber,
@@ -150,7 +149,7 @@ namespace FoodOrdering.MAUI.ViewModels
                 
                 
 
-                // Navigate to MenuPage
+            
                 await Shell.Current.GoToAsync(nameof(MenuPage));
                 } } finally { IsLoading = false; }
 
